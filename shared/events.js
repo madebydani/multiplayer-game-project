@@ -7,6 +7,7 @@ export const EV = {
   SET_DURATION: 'room:duration', // { minutes } → ack (solo anfitrión)
   START_GAME: 'game:start', // sin datos → ack (solo anfitrión)
   INPUT: 'input', // { seq, x, y, s } con x, y ∈ {-1, 0, 1} y s (sprint) ∈ {0, 1}
+  USE_ITEM: 'item:use', // { slot: 0 | 1 } → ack { ok } | { ok: false, error }
   ABILITY: 'ability', // sin datos → ack { ok } | { ok: false, error } (habilidad propia)
   PING: 'net:ping', // sin datos → ack vacío (para medir la latencia)
 

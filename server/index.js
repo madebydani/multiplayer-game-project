@@ -139,6 +139,16 @@ export function createHuntedServer() {
       }),
     );
 
+    socket.on(
+      EV.USE_ITEM,
+      handle(({ slot }) => {
+        const match = rooms.roomOf(socket.id)?.match;
+        if (!match) throw new RoomError('No hay ninguna partida en curso.');
+        const error = match.useItem(socket.id, slot);
+        if (error) throw new RoomError(error);
+      }),
+    );
+
     socket.on(EV.INPUT, (input) => {
       rooms.roomOf(socket.id)?.match?.addInput(socket.id, input);
     });

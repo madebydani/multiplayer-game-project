@@ -182,3 +182,28 @@ test('habilidades por red: estado personal y respuesta del servidor', async () =
   assert.equal(sm.you.abilityActiveMs, 0);
   assert.equal(sm.you.trackAngle, null);
 });
+
+test('objetos por red: usar ranura vacía devuelve motivo; el monstruo no recibe a un invisible', async () => {
+  const a = client();
+  const b = client();
+  const r = await ask(a, EV.CREATE_ROOM, { name: 'Ana' });
+  await ask(b, EV.JOIN_ROOM, { code: r.code, name: 'Bea' });
+  const started = once(a, EV.GAME_STARTED);
+  await ask(a, EV.START_GAME);
+  const start = await started;
+  const survId = start.players.find((p) => p.role === 'survivor').id;
+  const [surv, mon] = survId === r.you ? [a, b] : [b, a];
+
+  const empty = await ask(surv, EV.USE_ITEM, { slot: 0 });
+  assert.equal(empty.ok, false);
+  assert.match(empty.error, /ningún objeto/);
+
+  // Damos al superviviente un objeto de invisibilidad (el test accede al servidor).
+  const match = server.rooms.rooms.get(r.code).match;
+  match.players.get(survId).inventory = ['invis'];
+  assert.equal((await ask(surv, EV.USE_ITEM, { slot: 0 })).ok, true);
+  const [sm, ss] = await Promise.all([once(mon, EV.STATE), once(surv, EV.STATE)]);
+  assert.ok(!sm.players.some((p) => p.id === survId), 'el monstruo no recibe al invisible');
+  assert.ok(ss.players.some((p) => p.id === survId && p.hidden));
+  assert.ok(ss.you.effects.invis > 0);
+});

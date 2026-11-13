@@ -20,6 +20,18 @@ export const ABILITY = {
   monster: { name: 'Rastreo', durationMs: 3000, cooldownMs: 20000 },
 };
 
+// Objetos (fase 7c, docs/GAMEPLAY.md). `side`: bando que puede recogerlos.
+export const ITEMS = {
+  energy: { side: 'survivor', name: 'Energía', letter: 'E' },
+  smoke: { side: 'survivor', name: 'Humo', letter: 'H', durationMs: 5000, radius: 120 },
+  invis: { side: 'survivor', name: 'Invisibilidad', letter: 'I', durationMs: 4000 },
+  radar: { side: 'monster', name: 'Radar', letter: 'R', durationMs: 3000 },
+  fury: { side: 'monster', name: 'Furia', letter: 'F', durationMs: 5000, multiplier: 1.2 },
+};
+export const ITEM_SPAWN = { initial: 3, everyMs: 20000, max: 6 };
+export const ITEM_RADIUS = 12; // tamaño del objeto en el suelo
+export const INVENTORY_SIZE = 2;
+
 export const CAPTURE_RADIUS = 40; // distancia máxima entre centros (px)
 export const CAPTURE_COOLDOWN_MS = 3000; // bloqueo tras transformarse
 export const MONSTER_START_FREEZE_MS = 5000; // ventaja inicial de los supervivientes

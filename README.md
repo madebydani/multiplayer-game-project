@@ -29,6 +29,7 @@ Abrir `http://localhost:3000`, escribir un nombre y **Crear sala**. Los demás s
 | WASD o flechas | Moverse |
 | Shift | Sprint (barra de energía en el HUD) |
 | Espacio | Habilidad: señuelo (superviviente) o rastreo (monstruo) |
+| 1 / 2 | Usar el objeto de la ranura 1 / 2 (se recogen pasando por encima) |
 | M | Mostrar u ocultar el minimapa |
 
 En **Ajustes** se regula el volumen y se pueden reducir las animaciones (por defecto sigue la preferencia del sistema operativo).
@@ -43,6 +44,10 @@ node test/e2e/two-browsers.cjs
 ```
 ```bash
 node test/e2e/ui.cjs
+```
+Prueba de objetos (arranca su propio servidor):
+```bash
+node test/e2e/items.mjs
 ```
 
 ## Jugar en red local (dos ordenadores)

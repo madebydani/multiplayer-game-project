@@ -1,6 +1,6 @@
 // Flujo de pantallas: menú → sala → partida → resultados.
 import { EV } from '/shared/events.js';
-import { SPRINT_ENERGY_MS, ABILITY } from '/shared/config.js';
+import { SPRINT_ENERGY_MS, ABILITY, ITEMS } from '/shared/config.js';
 import { socket, request } from './net.js';
 import { GameScene } from './scenes/GameScene.js';
 import { settings } from './settings.js';
@@ -195,6 +195,7 @@ socket.on(EV.GAME_STARTED, async (data) => {
     onState: updateHud,
     onLocal: updateEnergy,
     onAbility: useAbility,
+    onUseItem: useItem,
   });
   window.__hunted = game; // acceso para pruebas automáticas
   updateHud({ timeLeftMs: data.durationMs, survivors: data.players.length - 1, events: [], players: data.players });
@@ -237,6 +238,29 @@ async function useAbility() {
   else toast(res.error);
 }
 
+/** Teclas 1/2: usar un objeto del inventario. */
+async function useItem(slot) {
+  const res = await request(EV.USE_ITEM, { slot });
+  if (res.ok) sfx.item();
+  else toast(res.error);
+}
+
+/** Inventario (2 ranuras) y efectos activos con su tiempo restante. */
+function updateInventory(you) {
+  if (!you?.inventory) return;
+  for (const slot of [0, 1]) {
+    const el = $(`slot-${slot}`);
+    const type = you.inventory[slot];
+    el.textContent = type ? `${slot + 1} · ${ITEMS[type].name}` : `${slot + 1} · —`;
+    el.className = `slot${type ? ` filled ${ITEMS[type].side}` : ''}`;
+  }
+  const labels = { invis: 'Invisible', fury: 'Furia', radar: 'Radar' };
+  $('hud-effects').textContent = Object.entries(you.effects ?? {})
+    .filter(([, ms]) => ms > 0)
+    .map(([k, ms]) => `${labels[k]} ${Math.ceil(ms / 1000)} s`)
+    .join(' · ');
+}
+
 /** Estado de la habilidad propia en el HUD (texto + color, no solo color). */
 function updateAbility(role, you) {
   if (!role || !you) return;
@@ -270,6 +294,7 @@ function updateHud(state) {
   }
 
   updateAbility(me?.role, state.you);
+  updateInventory(state.you);
 
   if (me) {
     const monster = me.role === 'monster';
@@ -288,6 +313,9 @@ function updateHud(state) {
       const victim = ev.victim === myId ? 'Te ha' : `${names.get(ev.victim)} ha sido`;
       const by = ev.by === myId ? 'ti' : names.get(ev.by);
       toast(ev.victim === myId ? `¡Te ha capturado ${by}! Ahora eres monstruo.` : `${victim} capturado por ${by}.`);
+    } else if (ev.type === 'pickup' && ev.by === myId) {
+      sfx.pickup();
+      toast(`Has recogido: ${ITEMS[ev.item].name}. Úsalo con 1 o 2.`);
     } else if (ev.type === 'newMonster') {
       sfx.newMonster();
       toast(

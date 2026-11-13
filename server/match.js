@@ -15,6 +15,11 @@ import {
   MIN_PLAYERS,
   ABILITY,
   SPEED,
+  ITEMS,
+  ITEM_SPAWN,
+  ITEM_RADIUS,
+  INVENTORY_SIZE,
+  SPRINT_ENERGY_MS,
 } from '../shared/config.js';
 import { overlaps, moveCircle } from '../shared/collision.js';
 import { applyInput, initialSprint } from '../shared/movement.js';
@@ -26,9 +31,14 @@ export class Match {
   /**
    * @param {object} map  mapa con width, height, spawn y obstacles
    * @param {{id: string, name: string}[]} players
-   * @param {{durationMs?: number, random?: () => number}} options
+   * @param {{durationMs?: number, random?: () => number, items?: boolean}} options
+   *   items: false desactiva la aparición de objetos (útil en algunas pruebas)
    */
-  constructor(map, players, { durationMs = DEFAULT_MATCH_DURATION_MIN * 60000, random = Math.random } = {}) {
+  constructor(
+    map,
+    players,
+    { durationMs = DEFAULT_MATCH_DURATION_MIN * 60000, random = Math.random, items = true } = {},
+  ) {
     this.map = map;
     this.durationMs = durationMs;
     this.random = random;
@@ -39,6 +49,11 @@ export class Match {
     this.events = []; // capturas, etc. pendientes de enviar con el próximo estado
     this.decoys = new Map(); // ownerId → señuelo activo
     this.decoyCounter = 0;
+    this.items = new Map(); // id → objeto en el suelo { id, type, x, y }
+    this.clouds = []; // nubes de humo { id, x, y, untilMs }
+    this.itemCounter = 0;
+    this.itemsEnabled = items;
+    this.nextItemAtMs = ITEM_SPAWN.everyMs;
 
     this.players = new Map(); // jugadores conectados que siguen en la simulación
     this.roster = new Map(); // TODOS los que empezaron (para el resultado final)
@@ -70,10 +85,89 @@ export class Match {
         // Habilidad propia: el monstruo inicial no puede usarla hasta que se descongela.
         abilityReadyAtMs: isMonster ? MONSTER_START_FREEZE_MS : 0,
         abilityUntilMs: 0,
+        // Objetos
+        inventory: [], // tipos de objeto, máx. INVENTORY_SIZE
+        invisUntilMs: 0,
+        radarUntilMs: 0,
+        furyUntilMs: 0,
+        fury: false,
       };
       this.players.set(p.id, player);
       this.roster.set(p.id, player);
     });
+
+    if (this.itemsEnabled) for (let i = 0; i < ITEM_SPAWN.initial; i++) this.spawnItem();
+  }
+
+  // ---------- Objetos ----------
+
+  /** Coloca un objeto al azar en un punto libre, lejos de otros objetos. */
+  spawnItem(type = null) {
+    if (this.items.size >= ITEM_SPAWN.max) return null;
+    const types = Object.keys(ITEMS);
+    const kind = type ?? types[Math.floor(this.random() * types.length)];
+    const margin = 60;
+    for (let tries = 0; tries < 60; tries++) {
+      const x = margin + this.random() * (this.map.width - 2 * margin);
+      const y = margin + this.random() * (this.map.height - 2 * margin);
+      if (this.map.obstacles.some((ob) => overlaps(x, y, PLAYER_RADIUS + 4, ob))) continue;
+      if ([...this.items.values()].some((it) => Math.hypot(it.x - x, it.y - y) < 200)) continue;
+      const item = { id: `i${++this.itemCounter}`, type: kind, x: round(x), y: round(y) };
+      this.items.set(item.id, item);
+      return item;
+    }
+    return null;
+  }
+
+  /** Recogida: un jugador del bando correcto, con hueco, pasa por encima. */
+  checkPickups() {
+    for (const item of [...this.items.values()]) {
+      const side = ITEMS[item.type].side;
+      for (const p of this.players.values()) {
+        if (p.role !== side || p.inventory.length >= INVENTORY_SIZE) continue;
+        if (Math.hypot(p.x - item.x, p.y - item.y) > PLAYER_RADIUS + ITEM_RADIUS) continue;
+        p.inventory.push(item.type);
+        this.items.delete(item.id);
+        this.events.push({ type: 'pickup', id: item.id, by: p.id, item: item.type });
+        break;
+      }
+    }
+  }
+
+  /** Usa el objeto de la ranura `slot`. Devuelve un mensaje de error o null. */
+  useItem(playerId, slot) {
+    const p = this.players.get(playerId);
+    if (!p || this.result) return 'La partida no está en curso.';
+    if (slot !== 0 && slot !== 1) return 'Ranura no válida.';
+    const type = p.inventory[slot];
+    if (!type) return `No tienes ningún objeto en la ranura ${slot + 1}.`;
+    const def = ITEMS[type];
+    if (def.side !== p.role) return 'Ese objeto no es de tu bando.';
+    if (p.frozen) return 'Todavía no puedes moverte.';
+    const now = this.elapsedMs;
+    p.inventory.splice(slot, 1);
+    if (type === 'energy') {
+      p.energy = SPRINT_ENERGY_MS;
+      p.exhausted = false;
+    } else if (type === 'smoke') {
+      this.clouds.push({ id: `c${++this.itemCounter}`, x: round(p.x), y: round(p.y), untilMs: now + def.durationMs });
+    } else if (type === 'invis') {
+      p.invisUntilMs = now + def.durationMs;
+    } else if (type === 'radar') {
+      p.radarUntilMs = now + def.durationMs;
+    } else if (type === 'fury') {
+      p.furyUntilMs = now + def.durationMs;
+    }
+    this.events.push({ type: 'useItem', id: p.id, item: type });
+    return null;
+  }
+
+  /** ¿Está este superviviente oculto para los monstruos (invisible o dentro del humo)? */
+  isHidden(p) {
+    if (p.role !== 'survivor') return false;
+    const now = this.elapsedMs;
+    if (now < p.invisUntilMs) return true;
+    return this.clouds.some((c) => Math.hypot(c.x - p.x, c.y - p.y) <= ITEMS.smoke.radius);
   }
 
   get elapsedMs() {
@@ -161,7 +255,7 @@ export class Match {
     let best = null;
     let bestDist = Infinity;
     for (const s of this.players.values()) {
-      if (s.role !== 'survivor') continue;
+      if (s.role !== 'survivor' || this.isHidden(s)) continue; // no detecta a los ocultos
       const d = Math.hypot(s.x - m.x, s.y - m.y);
       if (d < bestDist) {
         bestDist = d;
@@ -178,8 +272,15 @@ export class Match {
     const dt = TICK_MS / 1000;
     const now = this.elapsedMs;
 
+    this.clouds = this.clouds.filter((c) => now < c.untilMs);
+    if (this.itemsEnabled && now >= this.nextItemAtMs) {
+      this.spawnItem();
+      this.nextItemAtMs = now + ITEM_SPAWN.everyMs;
+    }
+
     for (const p of this.players.values()) {
       p.frozen = p.initialMonster && p.role === 'monster' && now < MONSTER_START_FREEZE_MS;
+      p.fury = p.role === 'monster' && now < p.furyUntilMs;
       // Cada tick se gana 1 crédito: de media, nunca más de 1 entrada por tick.
       p.credit = Math.min(MAX_INPUT_CREDIT, p.credit + 1);
       while (p.inputs.length > 0 && p.credit >= 1) {
@@ -189,6 +290,7 @@ export class Match {
     }
 
     this.updateDecoys(now, dt);
+    this.checkPickups();
     this.checkCaptures(now);
     this.checkEnd();
     const snapshot = this.snapshot();
@@ -261,6 +363,9 @@ export class Match {
     }
     p.abilityUntilMs = 0;
     p.abilityReadyAtMs = now + CAPTURE_COOLDOWN_MS;
+    // Pierde los objetos de superviviente y los efectos de ocultación.
+    p.inventory = p.inventory.filter((t) => ITEMS[t].side === 'monster');
+    p.invisUntilMs = 0;
   }
 
   finish(winner, reason) {
@@ -310,7 +415,11 @@ export class Match {
         energy: p.energy, // sin redondear: el cliente la predice con el mismo cálculo
         exhausted: p.exhausted,
         sprinting: p.sprinting,
+        fury: p.fury,
+        hidden: this.isHidden(p), // se filtra para los monstruos en personalize()
       })),
+      items: [...this.items.values()],
+      clouds: this.clouds.map((c) => ({ id: c.id, x: c.x, y: c.y, msLeft: c.untilMs - now })),
       // Los señuelos llevan su propio id; `owner` dice a quién imitan.
       decoys: [...this.decoys.values()].map((d) => ({ id: d.id, owner: d.owner, x: round(d.x), y: round(d.y), dx: d.dx, dy: d.dy })),
     };
@@ -325,12 +434,25 @@ export class Match {
     if (!p) return snapshot;
     const now = this.elapsedMs;
     const active = now < p.abilityUntilMs;
+    const radar = p.role === 'monster' && now < p.radarUntilMs;
+    // Los monstruos NO reciben a los supervivientes ocultos (ni su posición).
+    const players =
+      p.role === 'monster' ? snapshot.players.filter((q) => !q.hidden) : snapshot.players;
     return {
       ...snapshot,
+      players,
       you: {
         abilityReadyMs: Math.max(0, p.abilityReadyAtMs - now),
         abilityActiveMs: active ? p.abilityUntilMs - now : 0,
         trackAngle: active && p.role === 'monster' ? this.trackAngle(p) : null,
+        inventory: p.inventory,
+        effects: {
+          invis: Math.max(0, p.invisUntilMs - now),
+          fury: Math.max(0, p.furyUntilMs - now),
+          radar: Math.max(0, p.radarUntilMs - now),
+        },
+        // Radar: posiciones exactas de los supervivientes visibles.
+        radar: radar ? players.filter((q) => q.role === 'survivor').map((q) => ({ x: q.x, y: q.y })) : null,
       },
     };
   }

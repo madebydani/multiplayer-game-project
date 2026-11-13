@@ -220,9 +220,25 @@ select {
   color: #ffffff;
 }
 
+#actionbar {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  right: 210px; /* deja sitio al minimapa */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  width: fit-content;
+  max-width: calc(100% - 222px);
+  background: #000000aa;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
 #toast {
   position: fixed;
-  bottom: 24px;
+  bottom: 64px; /* encima de la barra de acciones */
   left: 50%;
   transform: translateX(-50%);
   background: #000000cc;
@@ -385,5 +401,36 @@ input[type='range'] {
 
 .ability.active {
   border-color: #ffe082;
+  color: #ffe082;
+}
+
+.inventory {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.slot {
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border: 1px dashed #ffffff55;
+  border-radius: 4px;
+  min-width: 4.5em;
+  text-align: center;
+}
+
+.slot.filled {
+  border-style: solid;
+}
+
+.slot.survivor {
+  border-color: #4fc3f7;
+}
+
+.slot.monster {
+  border-color: #e53935;
+}
+
+.effects {
+  font-size: 0.8rem;
   color: #ffe082;
 }

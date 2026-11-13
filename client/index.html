@@ -42,7 +42,7 @@
       <input id="reduce-motion" type="checkbox">
       Reducir animaciones (sin destellos, rebotes ni balanceo)
     </label>
-    <p class="hint">Controles: WASD o flechas para moverse · Shift para esprintar · Espacio para la habilidad (señuelo o rastreo) · M muestra u oculta el minimapa.</p>
+    <p class="hint">Controles: WASD o flechas para moverse · Shift para esprintar · Espacio para la habilidad (señuelo o rastreo) · 1 y 2 para usar objetos · M muestra u oculta el minimapa.</p>
     <button class="btn-back primary">Volver</button>
   </main>
 
@@ -111,13 +111,20 @@
       <span id="hud-status"></span>
       <span id="hud-timer" class="timer" aria-label="Tiempo restante"></span>
       <span id="hud-survivors"></span>
+      <button id="btn-quit" class="small">Salir</button>
+    </div>
+    <!-- Barra de acciones: habilidad, objetos, efectos y sprint -->
+    <div id="actionbar">
       <span id="hud-ability" class="ability"></span>
+      <span id="hud-inventory" class="inventory" aria-label="Inventario">
+        <span class="slot" id="slot-0"></span><span class="slot" id="slot-1"></span>
+      </span>
       <span class="energy" title="Energía de sprint (Shift)">
         <span class="energy-label">Sprint</span>
         <span class="energy-bar"><span id="energy-fill"></span></span>
         <span id="energy-text" class="energy-text"></span>
       </span>
-      <button id="btn-quit" class="small">Salir</button>
+      <span id="hud-effects" class="effects"></span>
     </div>
     <div id="toast" role="status" aria-live="polite"></div>
   </div>

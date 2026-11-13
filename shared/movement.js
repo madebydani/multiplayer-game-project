@@ -8,6 +8,7 @@ import {
   SPRINT_ENERGY_MS,
   SPRINT_RECHARGE_MS,
   SPRINT_RESTART_FRACTION,
+  ITEMS,
 } from './config.js';
 import { moveCircle } from './collision.js';
 
@@ -40,7 +41,8 @@ export function applyInput(p, input, dt, map) {
 
   if (!moving) return;
   const len = Math.hypot(input.x, input.y); // normaliza la diagonal
-  const speed = (SPEED[p.role] ?? SPEED.survivor) * (p.sprinting ? SPRINT_MULTIPLIER : 1);
+  const speed =
+    (SPEED[p.role] ?? SPEED.survivor) * (p.sprinting ? SPRINT_MULTIPLIER : 1) * (p.fury ? ITEMS.fury.multiplier : 1);
   const dist = speed * dt;
   const next = moveCircle(p.x, p.y, PLAYER_RADIUS, (input.x / len) * dist, (input.y / len) * dist, map.obstacles, map);
   p.x = next.x;

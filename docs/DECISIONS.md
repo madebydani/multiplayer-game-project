@@ -158,5 +158,21 @@
 - Limitación conocida: alguien que inspeccione los mensajes de red podría distinguirlo. Ocultarlo del todo exigiría identificadores aleatorios para todos los jugadores en cada partida. Se acepta para un proyecto académico; no afecta a quién gana (el señuelo no captura ni puede ser capturado).
 - Contraste: la invisibilidad y el humo (7c) sí se ocultarán en los datos, porque ahí la información es decisiva.
 
+### D36 — Ocultación filtrada en el servidor (2026-11-13, fase 7c)
+- Decisión: a los monstruos no se les envía la entrada de los supervivientes invisibles o dentro del humo (`personalize`). Rastreo y radar también los ignoran. La captura por contacto sigue funcionando.
+- Motivo: si solo se ocultaran al dibujar, cualquiera podría leer la posición en los mensajes de red.
+
+### D37 — Furia en la predicción del cliente (2026-11-13, fase 7c)
+- Decisión: el multiplicador de furia está en la función de movimiento compartida y el cliente recibe `fury` en cada estado.
+- Limitación conocida: justo cuando la furia empieza o termina, el cliente puede predecir un tick con la velocidad anterior y corregirse unos píxeles. Se acepta.
+
+### D38 — HUD dividido en dos zonas (2026-11-13, fase 7c)
+- Problema: con sprint, habilidad e inventario, el HUD superior llegaba a 4 líneas y tapaba el mapa.
+- Decisión: arriba la información de la partida (rol, estado, tiempo, supervivientes, conexión, Salir); abajo la barra de acciones (habilidad, ranuras, sprint, efectos); los avisos justo encima. Márgenes de cámara ajustados a ambas zonas.
+
+### D39 — Objetos del suelo dibujados por código (2026-11-13, fase 7c)
+- Decisión: círculo azul (superviviente) o rombo rojo (monstruo) con la letra del objeto. Forma, color y letra: no depende solo del color.
+- Se podrán sustituir por iconos ilustrados más adelante (pendiente en `ASSET_LIST.md`).
+
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
 - `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

@@ -141,3 +141,14 @@
 - Comprobado automáticamente: 59 pruebas (8 nuevas: señuelo, no capturable, recarga, rastreo solo para el monstruo, congelado, pérdida al transformarse, desconexión del dueño, estado personal por red). Playwright con 2 navegadores: el monstruo ve el señuelo idéntico al dueño y el superviviente lo ve translúcido con etiqueta; desaparece a los 4 s; la flecha apunta al superviviente (−0,79 rad, igual que el esperado) y el superviviente no la ve; avisos y HUD correctos; sin errores. Las pruebas de navegador anteriores siguen pasando.
 - Pendiente: equilibrio con jugadores reales.
 - Evidencia: `docs/evidence/fase7b-*.png`.
+
+### 2026-11-13 — Fase 7c: objetos
+- Objetivo: 5 objetos según `docs/GAMEPLAY.md` (Energía, Humo, Invisibilidad / Radar, Furia), inventario de 2, teclas 1/2.
+- Herramienta: Claude Code (sesión en la nube).
+- Modificado: `shared/config.js` (`ITEMS`, aparición, inventario), `shared/movement.js` (furia), `server/match.js` (aparición, recogida, uso, nubes, `isHidden`, filtro por destinatario, radar), `server/index.js` (evento `item:use`), `client/js/scenes/GameScene.js` (objetos, nubes, translucidez, aura de furia, radar en el minimapa, teclas 1/2), `client/js/main.js` (ranuras, efectos, avisos), `client/index.html`/`style.css` (HUD en dos zonas), `client/js/sound.js`, pruebas; nuevo `test/e2e/items.mjs`.
+- Decisiones: D36–D39.
+- Incidencia: con el inventario, el HUD llegó a 4 líneas y tapaba el mapa (visto en las capturas). Se dividió en HUD superior y barra de acciones inferior (D38).
+- Observación correcta, no fallo: el radar del monstruo salió vacío porque el único superviviente estaba dentro del humo.
+- Comprobado automáticamente: 71 pruebas (12 nuevas: aparición y máximo, recogida por bando y con hueco, motivos de error, energía, invisibilidad oculta al monstruo pero se puede capturar, caducidad, humo, radar sin los ocultos, furia ×1,2 y fin, pérdida de objetos al ser capturado, rastreo ignora a los ocultos; por red: el monstruo no recibe al invisible). Playwright (servidor en el mismo proceso para colocar objetos): recogida con aviso, nube visible para ambos, el monstruo no ve al superviviente en el humo, ranura vacía con motivo, furia y radar en el HUD; sin errores. Las otras 3 pruebas de navegador siguen pasando.
+- Pendiente: equilibrio (frecuencia de aparición, duraciones) con jugadores reales.
+- Evidencia: `docs/evidence/fase7c-*.png`.

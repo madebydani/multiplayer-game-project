@@ -67,8 +67,8 @@ Herramienta prevista inicialmente: ChatGPT. **Cambio del 2026-11-13 (D31):** el 
 - Logo: «Logotipo de texto "HUNTED" para un juego de persecución en el bosque: letras gruesas y legibles en crema #F3E9D2 con contorno #0D1410, unas marcas de garra en la letra U y ramas o hojas decorativas. Comprueba que el texto diga exactamente HUNTED.»
 - Iconos: «Icono circular sencillo, legible a 32 px, vista de frente: (cara del explorador con gorro, azul #4FC3F7) / (cara del monstruo con cuernos y ojos amarillos, rojo #E53935). Mismo estilo en los dos.» (Los iconos de interfaz van de frente, no cenitales, para que se reconozcan mejor en tamaño pequeño.)
 
-## Más adelante (no generar todavía)
-- Objetos y power-ups (fase 7): se especificarán cuando se aprueben las habilidades.
+## Más adelante (opcional)
+- Iconos de objetos (fase 7c): ahora son formas dibujadas por código (círculo azul o rombo rojo con letra, D39). Si se ilustran: `client/assets/items/{energy,smoke,invis,radar,fury}.png`, 64×64, fondo transparente, vista cenital. Estado: pendiente (requiere un pequeño cambio de código para cargarlos).
 - Audio (pulido): recursos originales o con licencia verificada.
 
 ## Registro de recursos recibidos

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Match, spawnPoints } from '../server/match.js';
+import { generateMap } from '../server/mapgen.js';
 import { createTestMap } from '../shared/testMap.js';
 import { overlaps } from '../shared/collision.js';
 import { PLAYER_RADIUS, SPEED, TICK_MS, MAX_INPUT_CREDIT } from '../shared/config.js';
@@ -435,4 +436,156 @@ test('el señuelo desaparece si su dueño se desconecta', () => {
   m.removePlayer('b');
   m.step();
   assert.equal(m.decoys.size, 0);
+});
+
+// ---------- Fase 7c: objetos ----------
+import { ITEMS, ITEM_SPAWN, INVENTORY_SIZE } from '../shared/config.js';
+
+/** Partida sin objetos al azar; los colocamos a mano. */
+const itemMatch = () => {
+  const m = newMatch(three, { items: false });
+  run(m, ticksFor(MONSTER_START_FREEZE_MS));
+  place(m, 'a', 2200, 300); // monstruo lejos
+  place(m, 'b', 300);
+  place(m, 'c', 1500, 1500);
+  return m;
+};
+const putItem = (m, type, x, y) => {
+  const it = { id: `t${m.items.size + 1}${type}`, type, x, y };
+  m.items.set(it.id, it);
+  return it;
+};
+
+test('objetos: aparecen 3 al empezar, uno más cada 20 s, máximo 6, en puntos libres', () => {
+  const map = generateMap(31);
+  const m = new Match(map, three);
+  assert.equal(m.items.size, ITEM_SPAWN.initial);
+  run(m, ticksFor(ITEM_SPAWN.everyMs * 10));
+  assert.equal(m.items.size, ITEM_SPAWN.max);
+  for (const it of m.items.values()) {
+    assert.ok(!map.obstacles.some((ob) => overlaps(it.x, it.y, PLAYER_RADIUS, ob)), 'objeto sobre un obstáculo');
+  }
+});
+
+test('objetos: se recogen pasando por encima solo si son de tu bando y hay hueco', () => {
+  const m = itemMatch();
+  putItem(m, 'radar', 300, 900); // de monstruo: el superviviente "b" no lo coge
+  m.step();
+  assert.equal(m.players.get('b').inventory.length, 0);
+  assert.equal(m.items.size, 1);
+  m.items.clear();
+  putItem(m, 'smoke', 300, 900);
+  const snap = m.step();
+  assert.deepEqual(m.players.get('b').inventory, ['smoke']);
+  assert.equal(m.items.size, 0);
+  assert.ok(snap.events.some((e) => e.type === 'pickup' && e.by === 'b'));
+  // Inventario lleno: no recoge más.
+  putItem(m, 'invis', 300, 900);
+  m.step();
+  putItem(m, 'energy', 300, 900);
+  m.step();
+  assert.equal(m.players.get('b').inventory.length, INVENTORY_SIZE);
+  assert.equal(m.items.size, 1);
+});
+
+test('objetos: usar ranura vacía o no válida devuelve un motivo', () => {
+  const m = itemMatch();
+  assert.match(m.useItem('b', 0), /ningún objeto en la ranura 1/);
+  assert.match(m.useItem('b', 5), /Ranura no válida/);
+});
+
+test('energía: llena la barra de sprint', () => {
+  const m = itemMatch();
+  const b = m.players.get('b');
+  Object.assign(b, { energy: 0, exhausted: true, inventory: ['energy'] });
+  assert.equal(m.useItem('b', 0), null);
+  assert.equal(b.energy, 2000);
+  assert.equal(b.exhausted, false);
+  assert.equal(b.inventory.length, 0);
+});
+
+test('invisibilidad: los monstruos no reciben tu posición durante 4 s (pero se te puede capturar)', () => {
+  const m = itemMatch();
+  m.players.get('b').inventory = ['invis'];
+  m.useItem('b', 0);
+  let snap = m.step();
+  assert.ok(!m.personalize(snap, 'a').players.some((p) => p.id === 'b'), 'el monstruo no ve a b');
+  assert.ok(m.personalize(snap, 'c').players.some((p) => p.id === 'b' && p.hidden), 'el compañero sí');
+  // Captura por contacto aunque sea invisible.
+  place(m, 'a', 300);
+  snap = m.step();
+  assert.equal(m.players.get('b').role, 'monster');
+  assert.equal(m.players.get('b').invisUntilMs, 0);
+});
+
+test('invisibilidad: caduca a los 4 s', () => {
+  const m = itemMatch();
+  m.players.get('b').inventory = ['invis'];
+  m.useItem('b', 0);
+  run(m, ticksFor(ITEMS.invis.durationMs));
+  assert.ok(m.personalize(m.snapshot(), 'a').players.some((p) => p.id === 'b'));
+});
+
+test('humo: oculta a los supervivientes que estén dentro de la nube, visible para todos', () => {
+  const m = itemMatch();
+  place(m, 'c', 380); // a 80 px de b: dentro del radio de 120
+  m.players.get('b').inventory = ['smoke'];
+  m.useItem('b', 0);
+  const snap = m.step();
+  assert.equal(snap.clouds.length, 1);
+  const forMonster = m.personalize(snap, 'a');
+  assert.ok(!forMonster.players.some((p) => p.id === 'b' || p.id === 'c'));
+  assert.equal(forMonster.clouds.length, 1, 'la nube sí la ve');
+  // Al salir de la nube vuelve a ser visible.
+  place(m, 'c', 1500, 1500);
+  assert.ok(m.personalize(m.step(), 'a').players.some((p) => p.id === 'c'));
+  run(m, ticksFor(ITEMS.smoke.durationMs));
+  assert.equal(m.clouds.length, 0);
+});
+
+test('radar: el monstruo recibe la posición de los supervivientes visibles durante 3 s', () => {
+  const m = itemMatch();
+  m.players.get('a').inventory = ['radar'];
+  m.players.get('c').invisUntilMs = m.elapsedMs + 10000; // c invisible: no sale en el radar
+  assert.equal(m.useItem('a', 0), null);
+  const you = m.personalize(m.step(), 'a').you;
+  assert.deepEqual(you.radar, [{ x: 300, y: 900 }]);
+  assert.equal(m.personalize(m.snapshot(), 'b').you.radar, null);
+  run(m, ticksFor(ITEMS.radar.durationMs));
+  assert.equal(m.personalize(m.snapshot(), 'a').you.radar, null);
+});
+
+test('furia: ×1,2 de velocidad durante 5 s', () => {
+  const m = itemMatch();
+  const a = place(m, 'a', 300, 900);
+  place(m, 'b', 2000, 1500);
+  a.inventory = ['fury'];
+  m.useItem('a', 0);
+  m.addInput('a', { seq: 1, x: 1, y: 0 });
+  m.step();
+  assert.ok(Math.abs(a.x - (300 + SPEED.monster * ITEMS.fury.multiplier * (TICK_MS / 1000))) < 1e-9);
+  run(m, ticksFor(ITEMS.fury.durationMs));
+  const x0 = a.x;
+  m.addInput('a', { seq: 2, x: 1, y: 0 });
+  m.step();
+  assert.ok(Math.abs(a.x - x0 - SPEED.monster * (TICK_MS / 1000)) < 1e-9);
+});
+
+test('al ser capturado se pierden los objetos de superviviente', () => {
+  const m = itemMatch();
+  m.players.get('b').inventory = ['smoke', 'energy'];
+  place(m, 'a', 300);
+  m.step();
+  assert.deepEqual(m.players.get('b').inventory, []);
+});
+
+test('rastreo: ignora a los supervivientes ocultos', () => {
+  const m = itemMatch();
+  place(m, 'a', 1000, 900);
+  place(m, 'b', 1300, 900); // más cerca, pero invisible
+  place(m, 'c', 1000, 1500);
+  m.players.get('b').invisUntilMs = m.elapsedMs + 10000;
+  m.useAbility('a');
+  const you = m.personalize(m.step(), 'a').you;
+  assert.ok(Math.abs(you.trackAngle - Math.PI / 2) < 1e-9, 'apunta a c (abajo)');
 });

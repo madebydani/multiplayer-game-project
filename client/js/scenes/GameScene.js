@@ -9,7 +9,7 @@
 // instante y envía la entrada. Al llegar el estado del servidor, toma su
 // posición como buena y vuelve a aplicar las entradas que aún no ha procesado.
 // RED — jugadores remotos: INTERPOLACIÓN, dibujados INTERP_DELAY_MS en el pasado.
-import { PLAYER_RADIUS, TICK_MS, INTERP_DELAY_MS } from '/shared/config.js';
+import { PLAYER_RADIUS, TICK_MS, INTERP_DELAY_MS, ITEMS, ITEM_RADIUS } from '/shared/config.js';
 import { EV } from '/shared/events.js';
 import { applyInput, initialSprint } from '/shared/movement.js';
 import { availableTextures, FILL } from '../assets.js';
@@ -48,6 +48,7 @@ export class GameScene extends Phaser.Scene {
     this.onStateCallback = data.onState ?? (() => {});
     this.onLocalUpdate = data.onLocal ?? (() => {}); // cada fotograma, con mi estado predicho
     this.onAbility = data.onAbility ?? (() => {}); // al pulsar Espacio
+    this.onUseItem = data.onUseItem ?? (() => {}); // al pulsar 1 o 2
     this.looks = new Map(data.players.map((p) => [p.id, p])); // nombre y color de cada jugador
   }
 
@@ -90,8 +91,8 @@ export class GameScene extends Phaser.Scene {
     mine.container.setDepth(20);
     // Márgenes: así el HUD (arriba) y los avisos (abajo) no tapan al jugador
     // cuando está en el borde del mapa.
-    const top = 150;
-    const bottom = 80;
+    const top = 90; // HUD superior
+    const bottom = 120; // barra de acciones y avisos
     this.cameras.main.setBounds(0, -top, this.map.width, this.map.height + top + bottom);
     this.cameras.main.startFollow(mine.container, true, 0.2, 0.2);
 
@@ -99,6 +100,11 @@ export class GameScene extends Phaser.Scene {
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,LEFT,DOWN,RIGHT,SHIFT,SPACE');
     this.input.keyboard.on('keydown-M', () => this.toggleMinimap());
     this.input.keyboard.on('keydown-SPACE', () => this.onAbility());
+    this.input.keyboard.on('keydown-ONE', () => this.onUseItem(0));
+    this.input.keyboard.on('keydown-TWO', () => this.onUseItem(1));
+    this.itemSprites = new Map(); // id → objeto dibujado en el suelo
+    this.cloudSprites = new Map(); // id → nube de humo
+    this.radar = null; // posiciones del radar (solo monstruos con el objeto activo)
 
     this.decoySprites = new Map(); // id del señuelo → dibujo
     this.trackAngle = null;
@@ -291,6 +297,62 @@ export class GameScene extends Phaser.Scene {
     g.lineStyle(6, 0x000000).strokeRect(0, 0, width, height);
   }
 
+  // ---------- Objetos y humo ----------
+
+  /** Crea o elimina los objetos del suelo según el estado del servidor. */
+  syncItems(items) {
+    const alive = new Set(items.map((it) => it.id));
+    for (const it of items) {
+      if (this.itemSprites.has(it.id)) continue;
+      const def = ITEMS[it.type];
+      const color = def.side === 'survivor' ? 0x4fc3f7 : 0xe53935;
+      // Forma por bando además de color: círculo (superviviente) o rombo (monstruo).
+      const shape =
+        def.side === 'survivor'
+          ? this.add.circle(0, 0, ITEM_RADIUS + 4, color)
+          : this.add.rectangle(0, 0, (ITEM_RADIUS + 4) * 1.5, (ITEM_RADIUS + 4) * 1.5, color).setAngle(45);
+      shape.setStrokeStyle(3, 0x0d1410);
+      const letter = this.add
+        .text(0, 0, def.letter, { fontSize: '16px', fontStyle: 'bold', color: '#0d1410' })
+        .setOrigin(0.5);
+      const container = this.add.container(it.x, it.y, [shape, letter]).setDepth(8);
+      if (!settings.reduceMotion) {
+        this.tweens.add({ targets: container, scale: 1.15, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
+      }
+      this.itemSprites.set(it.id, container);
+    }
+    for (const [id, container] of this.itemSprites) {
+      if (alive.has(id)) continue;
+      this.itemSprites.delete(id);
+      container.destroy();
+    }
+  }
+
+  /** Nubes de humo: visibles para todos, por encima de los jugadores. */
+  syncClouds(clouds) {
+    const alive = new Set(clouds.map((c) => c.id));
+    for (const c of clouds) {
+      if (this.cloudSprites.has(c.id)) continue;
+      const g = this.add.container(c.x, c.y).setDepth(35);
+      const r = ITEMS.smoke.radius;
+      // Varias bolas grises superpuestas para que parezca una nube.
+      [[0, 0, 1], [-0.45, -0.3, 0.6], [0.45, -0.25, 0.6], [-0.35, 0.4, 0.55], [0.4, 0.4, 0.55]].forEach(([dx, dy, k]) =>
+        g.add(this.add.circle(dx * r, dy * r, r * k, 0x9e9e9e, 0.55)),
+      );
+      if (!settings.reduceMotion) {
+        g.setScale(0.3);
+        this.tweens.add({ targets: g, scale: 1, duration: 400, ease: 'Back.Out' });
+      }
+      this.cloudSprites.set(c.id, g);
+    }
+    for (const [id, g] of this.cloudSprites) {
+      if (alive.has(id)) continue;
+      this.cloudSprites.delete(id);
+      if (settings.reduceMotion) g.destroy();
+      else this.tweens.add({ targets: g, alpha: 0, duration: 400, onComplete: () => g.destroy() });
+    }
+  }
+
   // ---------- Minimapa ----------
   // Lienzo HTML aparte (no Phaser): muestra el bosque, a ti y a los de TU bando.
   // No muestra a los rivales: eso sería un "radar" (previsto como objeto en la fase 7).
@@ -357,6 +419,15 @@ export class GameScene extends Phaser.Scene {
       ctx.arc(sprite.container.x * scale, sprite.container.y * scale, isMe ? 4 : 3, 0, Math.PI * 2);
       ctx.fill();
     }
+    // Radar (objeto de monstruo): supervivientes visibles, en amarillo con borde.
+    for (const r of this.radar ?? []) {
+      ctx.fillStyle = '#ffe082';
+      ctx.strokeStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(r.x * scale, r.y * scale, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
     // Zona visible de la cámara.
     const view = this.cameras.main.worldView;
     ctx.strokeStyle = '#ffffff88';
@@ -382,6 +453,17 @@ export class GameScene extends Phaser.Scene {
     }
     this.onStateCallback(state);
     this.trackAngle = state.you?.trackAngle ?? null;
+    this.radar = state.you?.radar ?? null;
+    this.syncItems(state.items ?? []);
+    this.syncClouds(state.clouds ?? []);
+    // Ocultos (invisibles o en el humo): los ves translúcidos si son de tu bando
+    // (a los monstruos ni siquiera les llegan). Furia: anillo rojo grueso.
+    for (const p of state.players) {
+      const sprite = this.sprites.get(p.id);
+      if (!sprite) continue;
+      sprite.container.setAlpha(p.hidden ? 0.4 : 1);
+      sprite.ring.setStrokeStyle(p.fury ? 6 : 3, p.fury ? 0xff1744 : sprite.color, 0.9);
+    }
 
     const mine = state.players.find((p) => p.id === this.myId);
     if (!mine) return;
@@ -392,6 +474,7 @@ export class GameScene extends Phaser.Scene {
     this.me.frozen = mine.frozen;
     this.me.energy = mine.energy;
     this.me.exhausted = mine.exhausted;
+    this.me.fury = mine.fury;
     this.pending = this.pending.filter((i) => i.seq > mine.seq);
     for (const input of this.pending) applyInput(this.me, input, TICK_MS / 1000, this.map);
   }
