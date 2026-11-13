@@ -5,6 +5,13 @@ Herramienta prevista: ChatGPT (generación de imágenes), con revisión del equi
 
 > **Estilo:** ver `docs/ART_STYLE.md` (aprobado el 2026-11-13: vista cenital pura, animación por código). Si el estilo cambia, ajustar los prompts antes de generar.
 
+## Integración (ya preparada en el código)
+- Basta con guardar el PNG con el nombre exacto en su carpeta y recargar el juego: el servidor lo detecta solo.
+- Si falta una imagen, el juego usa el placeholder. Se pueden subir de una en una.
+- Variantes: si solo hay `tree_1.png`, todos los árboles la usan; si hay varias, se reparten.
+- Escalado automático según el tamaño de colisión: personajes ~64 px en pantalla; árboles, rocas y arbustos según la fracción del lienzo indicada en `client/js/assets.js` (`FILL`). Si una imagen sale demasiado grande o pequeña, se ajusta ahí.
+- Comprobado con imágenes de prueba dibujadas por código (no son arte del juego, se borraron): `docs/evidence/fase6-imagenes-prueba.png`.
+
 ## Cómo generar con coherencia
 1. Generar **todos los personajes en la misma conversación** de ChatGPT, y lo mismo con los elementos del bosque, para que mantenga el estilo.
 2. Empezar cada petición con el **prompt base** y añadir el del recurso.

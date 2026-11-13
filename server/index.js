@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { networkInterfaces } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { readdirSync } from 'node:fs';
 import { Server } from 'socket.io';
 import { EV } from '../shared/events.js';
 import { randomInt } from 'node:crypto';
@@ -15,6 +16,22 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 export function createHuntedServer() {
   const app = express();
+
+  // Lista de imágenes/sonidos que existen en client/assets (se calcula en cada
+  // petición: si el equipo añade un archivo, aparece sin reiniciar el servidor).
+  const assetsDir = path.join(root, 'client', 'assets');
+  app.get('/assets-manifest.json', (_req, res) => {
+    let files = [];
+    try {
+      files = readdirSync(assetsDir, { recursive: true })
+        .map((f) => String(f).split(path.sep).join('/'))
+        .filter((f) => /\.(png|jpe?g|webp|ogg|mp3|wav)$/i.test(f));
+    } catch {
+      /* carpeta inexistente: lista vacía */
+    }
+    res.json(files);
+  });
+
   app.use(express.static(path.join(root, 'client')));
   app.use('/shared', express.static(path.join(root, 'shared')));
   app.use('/vendor/phaser', express.static(path.join(root, 'node_modules/phaser/dist')));
@@ -111,6 +128,11 @@ export function createHuntedServer() {
 
     socket.on(EV.INPUT, (input) => {
       rooms.roomOf(socket.id)?.match?.addInput(socket.id, input);
+    });
+
+    // Medida de latencia: el cliente envía y mide cuánto tarda la respuesta.
+    socket.on(EV.PING, (ack) => {
+      if (typeof ack === 'function') ack();
     });
 
     socket.on('disconnect', () => leaveRoom(socket));

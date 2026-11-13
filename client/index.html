@@ -9,7 +9,8 @@
 <body>
   <!-- Menú principal -->
   <main id="menu" class="screen">
-    <h1>HUNTED</h1>
+    <h1 id="title">HUNTED</h1>
+    <img id="logo" src="" alt="HUNTED" hidden>
     <p class="subtitle">Sobrevive en el bosque… o caza a los demás.</p>
 
     <label for="name">Tu nombre</label>
@@ -24,6 +25,44 @@
     </div>
 
     <p id="menu-error" class="error" role="alert"></p>
+
+    <div class="menu-secondary">
+      <button id="btn-settings">Ajustes</button>
+      <button id="btn-credits">Créditos</button>
+    </div>
+  </main>
+
+  <!-- Ajustes -->
+  <main id="settings" class="screen" hidden>
+    <h2>Ajustes</h2>
+    <label for="volume">Volumen: <span id="volume-value"></span></label>
+    <input id="volume" type="range" min="0" max="100" step="5">
+    <button id="btn-test-sound" class="small">Probar sonido</button>
+    <label class="check">
+      <input id="reduce-motion" type="checkbox">
+      Reducir animaciones (sin destellos, rebotes ni balanceo)
+    </label>
+    <p class="hint">Controles: WASD o flechas para moverse · M muestra u oculta el minimapa.</p>
+    <button class="btn-back primary">Volver</button>
+  </main>
+
+  <!-- Créditos -->
+  <main id="credits" class="screen" hidden>
+    <h2>Créditos</h2>
+    <p>Proyecto académico de 2.º de DAM.</p>
+    <h3>Equipo</h3>
+    <ul id="credits-team">
+      <!-- EDITAR: nombres del equipo -->
+      <li>(Nombres del equipo pendientes)</li>
+    </ul>
+    <h3>Herramientas</h3>
+    <ul>
+      <li>Código asistido por Claude Code (Anthropic)</li>
+      <li>Ilustraciones generadas con ChatGPT (OpenAI) y revisadas por el equipo</li>
+      <li>Phaser 3, Socket.IO, Express y Node.js</li>
+      <li>Efectos de sonido sintetizados en el navegador (Web Audio)</li>
+    </ul>
+    <button class="btn-back primary">Volver</button>
   </main>
 
   <!-- Sala de espera -->
@@ -67,6 +106,7 @@
   <div id="game-screen" class="screen" hidden>
     <div id="game"></div>
     <div id="hud">
+      <span id="hud-net" class="net" title="Calidad de la conexión"></span>
       <span id="hud-role" class="role-tag"></span>
       <span id="hud-status"></span>
       <span id="hud-timer" class="timer" aria-label="Tiempo restante"></span>

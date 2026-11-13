@@ -7,6 +7,7 @@ export const EV = {
   SET_DURATION: 'room:duration', // { minutes } → ack (solo anfitrión)
   START_GAME: 'game:start', // sin datos → ack (solo anfitrión)
   INPUT: 'input', // { seq, x, y } con x, y ∈ {-1, 0, 1}
+  PING: 'net:ping', // sin datos → ack vacío (para medir la latencia)
 
   // Servidor → cliente
   ROOM_UPDATE: 'room:update', // { code, hostId, players: [{ id, name }], max, state, durationMin }

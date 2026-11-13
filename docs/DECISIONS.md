@@ -110,5 +110,25 @@
 - Consecuencia técnica señalada por la IA: los personajes se generan sin sombra (giraría con el sprite) y el juego la dibuja por código; los prompts se reescribieron para vista desde justo encima.
 - Excepción propuesta: los iconos de interfaz, de frente, para que sean legibles a 32 px.
 
+### D26 — Lista de imágenes publicada por el servidor y respaldo a placeholders (2026-11-13, fase 6)
+- Decisión: `GET /assets-manifest.json` lista los archivos de `client/assets/` en cada petición; el cliente carga solo esos.
+- Alternativa: intentar cargar todas y capturar errores. Descartada: cada imagen ausente generaría errores 404 en la consola y no se distinguirían de fallos reales.
+- Ventaja: el equipo puede añadir imágenes de una en una sin tocar código ni reiniciar.
+
+### D27 — Minimapa solo con tu bando (2026-11-13, fase 6)
+- Decisión: el minimapa muestra el bosque, tu posición, la de tu mismo rol y la zona visible; no muestra a los rivales. Tecla M para ocultarlo (no choca con la tabla de controles D9).
+- Motivo: mostrar a los rivales anularía el escondite y solaparía el objeto «radar» previsto en la fase 7.
+
+### D28 — Efectos de sonido sintetizados (2026-11-13, fase 6)
+- Decisión: sonidos provisionales generados con Web Audio (inicio, captura, transformación, cuenta atrás de 10 s, victoria/derrota). Volumen regulable en Ajustes.
+- Motivo: sin problemas de licencia y sin archivos; hace que el control de volumen tenga efecto. Se pueden sustituir por audio definitivo.
+
+### D29 — Ajuste «Reducir animaciones» propio del juego (2026-11-13, fase 6)
+- Decisión: casilla en Ajustes, guardada en el navegador, que por defecto copia `prefers-reduced-motion` del sistema. Desactiva destellos, rebotes, balanceo, giro suave y transiciones de avisos.
+
+### D30 — Copas de los árboles por encima de los jugadores (2026-11-13, fase 6)
+- Decisión: con imagen, las copas se dibujan sobre los personajes y los tapan un poco al pasar al lado (la colisión no cambia).
+- Motivo: da profundidad en vista cenital. Revisar al jugar si dificulta ver a los demás.
+
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
 - `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

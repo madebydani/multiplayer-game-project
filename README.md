@@ -4,7 +4,7 @@ Videojuego multijugador online en navegador, 2D top-down, de persecución e infe
 Un jugador empieza como monstruo; cada superviviente capturado se transforma en monstruo.
 Los supervivientes ganan si queda al menos uno cuando se acaba el tiempo.
 
-> **Estado:** fase 5 (mapa procedural). Partida completa jugable con un bosque distinto en cada partida. Arte provisional (placeholders) hasta la fase 6. Ver `docs/PROJECT_STATUS.md`.
+> **Estado:** fase 6 en curso. Juego completo con placeholders; preparado para cargar el arte definitivo en cuanto esté en `client/assets/`. Ver `docs/PROJECT_STATUS.md`.
 
 ## Tecnologías
 - Cliente: HTML5, CSS3, JavaScript (ES modules), Phaser 3.
@@ -22,15 +22,25 @@ npm install
 ```bash
 npm start
 ```
-Abrir `http://localhost:3000`, escribir un nombre y **Crear sala**. Los demás se unen con el código de 4 caracteres. El anfitrión pulsa **Empezar partida** (mínimo 2 jugadores, máximo 6). Controles: WASD o flechas. Puerto configurable con la variable `PORT`.
+Abrir `http://localhost:3000`, escribir un nombre y **Crear sala**. Los demás se unen con el código de 4 caracteres. El anfitrión elige la duración y pulsa **Empezar partida** (mínimo 2 jugadores, máximo 6). Puerto configurable con la variable `PORT`.
+
+| Tecla | Acción |
+|---|---|
+| WASD o flechas | Moverse |
+| M | Mostrar u ocultar el minimapa |
+
+En **Ajustes** se regula el volumen y se pueden reducir las animaciones (por defecto sigue la preferencia del sistema operativo).
 
 ## Pruebas
 ```bash
 npm test
 ```
-Prueba en navegador con dos jugadores (con el servidor arrancado; requiere Playwright instalado):
+Pruebas en navegador con dos jugadores (con el servidor arrancado; requieren Playwright instalado):
 ```bash
 node test/e2e/two-browsers.cjs
+```
+```bash
+node test/e2e/ui.cjs
 ```
 
 ## Jugar en red local (dos ordenadores)
@@ -63,7 +73,8 @@ shared/collision.js, movement.js   movimiento y colisiones (cliente y servidor)
 shared/events.js   nombres de los eventos de red (y qué datos lleva cada uno)
 shared/testMap.js  mapa fijo usado solo por las pruebas automáticas
 client/index.html  menú y sala (HTML) + partida (Phaser)
-client/js/         main.js (pantallas), net.js (Socket.IO), scenes/GameScene.js
+client/js/         main.js (pantallas), net.js (Socket.IO), scenes/GameScene.js,
+                   assets.js (imágenes), settings.js (ajustes), sound.js (efectos)
 test/              node:test (unidad e integración) y e2e/ (Playwright)
 ```
 
@@ -73,6 +84,9 @@ test/              node:test (unidad e integración) y e2e/ (Playwright)
 3. Elige 6 puntos de aparición libres y lo más separados posible.
 4. **Valida** el mapa con una búsqueda en anchura sobre una rejilla de 16 px: todo el terreno libre debe estar conectado. Si falla, prueba con la semilla siguiente.
 5. Envía a los clientes la **lista final** de obstáculos (no solo la semilla), así todos ven exactamente lo mismo.
+
+### Arte e imágenes
+Las imágenes definitivas van en `client/assets/` con los nombres de `docs/ASSET_LIST.md`. El servidor publica qué archivos existen (`/assets-manifest.json`) y el juego usa los que encuentre; lo que falte se dibuja con formas geométricas provisionales. Se pueden añadir de una en una: basta con recargar la página.
 
 ### Cómo funciona el multijugador
 1. Cada cliente envía 20 veces por segundo solo **qué teclas pulsa** (`input`).

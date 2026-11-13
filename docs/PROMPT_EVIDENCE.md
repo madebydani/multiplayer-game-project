@@ -64,3 +64,8 @@ Los prompts del usuario se citan literalmente cuando son visibles en la sesión.
 > 3. La que recomiendas
 
 **Respuesta (paráfrasis):** marca el estilo como aprobado y reescribe los prompts para vista cenital pura; señala que los personajes no deben llevar sombra dibujada porque el sprite rotará.
+
+**Prompt 11 (literal):**
+> Si, ves haciendo y le pido a chatgpt que las vaya creando.
+
+**Respuesta (paráfrasis):** prepara la carga de imágenes con respaldo a placeholders, rotación y efectos por código, ajustes, créditos, minimapa, indicador de conexión y sonidos sintetizados; lo verifica con imágenes de prueba temporales.

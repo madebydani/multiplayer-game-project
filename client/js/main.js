@@ -2,14 +2,19 @@
 import { EV } from '/shared/events.js';
 import { socket, request } from './net.js';
 import { GameScene } from './scenes/GameScene.js';
+import { settings } from './settings.js';
+import { sfx, unlockAudio } from './sound.js';
+import { refreshManifest, hasAsset, UI_IMAGES } from './assets.js';
 
 const $ = (id) => document.getElementById(id);
-const screens = ['menu', 'lobby', 'game-screen', 'results'];
+const screens = ['menu', 'settings', 'credits', 'lobby', 'game-screen', 'results'];
 
 let myId = null;
 let game = null; // instancia de Phaser (solo existe durante la partida)
 let names = new Map(); // id → nombre de los jugadores de la partida actual
 let toastTimer = null;
+let pingTimer = null;
+let lastTickSecond = null;
 
 function show(screen) {
   for (const s of screens) $(s).hidden = s !== screen;
@@ -20,6 +25,55 @@ function formatTime(ms, roundUp = true) {
   const total = roundUp ? Math.ceil(ms / 1000) : Math.floor(ms / 1000);
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
 }
+
+// ---------- Imágenes de interfaz (si existen) ----------
+refreshManifest().then(() => {
+  if (hasAsset(UI_IMAGES.logo)) {
+    $('logo').src = `assets/${UI_IMAGES.logo}`;
+    $('logo').hidden = false;
+    $('title').classList.add('visually-hidden'); // el texto sigue para lectores de pantalla
+  }
+});
+
+/** Icono de rol: imagen si existe; si no, el símbolo ● / ★. */
+function roleIcon(role) {
+  const path = role === 'monster' ? UI_IMAGES.iconMonster : UI_IMAGES.iconSurvivor;
+  if (hasAsset(path)) {
+    const img = document.createElement('img');
+    img.src = `assets/${path}`;
+    img.alt = '';
+    return img;
+  }
+  return document.createTextNode(role === 'monster' ? '★ ' : '● ');
+}
+
+// Cualquier clic desbloquea el audio (los navegadores lo exigen).
+document.addEventListener('pointerdown', unlockAudio, { once: true });
+document.addEventListener('keydown', unlockAudio, { once: true });
+
+// ---------- Ajustes y créditos ----------
+function showVolume() {
+  $('volume').value = String(Math.round(settings.volume * 100));
+  $('volume-value').textContent = `${Math.round(settings.volume * 100)} %`;
+}
+showVolume();
+$('reduce-motion').checked = settings.reduceMotion;
+document.body.classList.toggle('reduce-motion', settings.reduceMotion);
+$('volume').oninput = () => {
+  settings.set({ volume: Number($('volume').value) / 100 });
+  showVolume();
+};
+$('reduce-motion').onchange = () => {
+  settings.set({ reduceMotion: $('reduce-motion').checked });
+  document.body.classList.toggle('reduce-motion', settings.reduceMotion);
+};
+$('btn-test-sound').onclick = () => {
+  unlockAudio();
+  sfx.test();
+};
+$('btn-settings').onclick = () => show('settings');
+$('btn-credits').onclick = () => show('credits');
+for (const b of document.querySelectorAll('.btn-back')) b.onclick = () => show('menu');
 
 // ---------- Menú ----------
 try {
@@ -115,10 +169,14 @@ $('btn-again').onclick = () => {
 };
 
 // ---------- Partida ----------
-socket.on(EV.GAME_STARTED, (data) => {
+socket.on(EV.GAME_STARTED, async (data) => {
   names = new Map(data.players.map((p) => [p.id, p.name]));
+  lastTickSecond = null;
   show('game-screen');
   stopGame();
+  await refreshManifest(); // por si el equipo ha añadido imágenes nuevas
+  sfx.start();
+  startPing();
   game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: 'game',
@@ -132,6 +190,28 @@ socket.on(EV.GAME_STARTED, (data) => {
   updateHud({ timeLeftMs: data.durationMs, survivors: data.players.length - 1, events: [], players: data.players });
 });
 
+/** Mide la latencia cada 2 s y la muestra con texto (no solo color). */
+function startPing() {
+  clearInterval(pingTimer);
+  const measure = () => {
+    const t0 = performance.now();
+    socket.timeout(2000).emit(EV.PING, (err) => {
+      const el = $('hud-net');
+      if (err) {
+        el.textContent = 'Conexión: sin respuesta';
+        el.className = 'net bad';
+        return;
+      }
+      const ms = Math.round(performance.now() - t0);
+      const quality = ms < 100 ? ['good', 'buena'] : ms < 250 ? ['fair', 'regular'] : ['bad', 'mala'];
+      el.textContent = `Conexión ${quality[1]} · ${ms} ms`;
+      el.className = `net ${quality[0]}`;
+    });
+  };
+  measure();
+  pingTimer = setInterval(measure, 2000);
+}
+
 /** Actualiza el HUD (HTML) con cada estado del servidor. */
 function updateHud(state) {
   const me = state.players.find((p) => p.id === myId);
@@ -140,9 +220,16 @@ function updateHud(state) {
   $('hud-timer').classList.toggle('urgent', state.timeLeftMs <= 30000);
   $('hud-survivors').textContent = `Supervivientes: ${state.survivors}/${total}`;
 
+  // Últimos 10 segundos: un pitido por segundo.
+  const second = Math.ceil(state.timeLeftMs / 1000);
+  if (second <= 10 && second > 0 && second !== lastTickSecond) {
+    lastTickSecond = second;
+    sfx.tick();
+  }
+
   if (me) {
     const monster = me.role === 'monster';
-    $('hud-role').textContent = monster ? '★ MONSTRUO' : '● SUPERVIVIENTE';
+    $('hud-role').replaceChildren(roleIcon(me.role), monster ? 'MONSTRUO' : 'SUPERVIVIENTE');
     $('hud-role').className = `role-tag ${me.role}`;
     let status = monster ? 'Atrapa a los supervivientes' : 'Huye de los monstruos';
     if (me.frozen) status = `Inmóvil ${Math.ceil(me.cooldownMs / 1000)} s`;
@@ -152,10 +239,13 @@ function updateHud(state) {
 
   for (const ev of state.events ?? []) {
     if (ev.type === 'capture') {
+      if (ev.victim === myId) sfx.transformed();
+      else sfx.capture();
       const victim = ev.victim === myId ? 'Te ha' : `${names.get(ev.victim)} ha sido`;
       const by = ev.by === myId ? 'ti' : names.get(ev.by);
       toast(ev.victim === myId ? `¡Te ha capturado ${by}! Ahora eres monstruo.` : `${victim} capturado por ${by}.`);
     } else if (ev.type === 'newMonster') {
+      sfx.newMonster();
       toast(
         ev.id === myId
           ? 'El monstruo se ha ido: ¡ahora el monstruo eres tú!'
@@ -199,6 +289,13 @@ function statusText(p) {
 
 socket.on(EV.GAME_ENDED, (result) => {
   stopGame();
+  // ¿Ha ganado mi bando? Gano si sobreviví (y ganan los supervivientes) o si
+  // acabé siendo monstruo (y ganan los monstruos).
+  const mine = result.players.find((p) => p.id === myId);
+  if (result.winner && mine) {
+    const won = (result.winner === 'survivors') === (mine.role === 'survivor');
+    (won ? sfx.win : sfx.lose)();
+  }
   $('results-title').textContent =
     result.winner === 'survivors'
       ? '¡Ganan los supervivientes!'
@@ -211,7 +308,7 @@ socket.on(EV.GAME_ENDED, (result) => {
     ...result.players.map((p) => {
       const li = document.createElement('li');
       const name = document.createElement('span');
-      name.textContent = (p.role === 'monster' ? '★ ' : '● ') + p.name + (p.id === myId ? ' (tú)' : '');
+      name.append(roleIcon(p.role), p.name + (p.id === myId ? ' (tú)' : ''));
       const st = statusText(p);
       const status = document.createElement('span');
       status.className = `status ${st.cls}`;
@@ -230,6 +327,8 @@ socket.on('disconnect', () => {
 });
 
 function stopGame() {
+  clearInterval(pingTimer);
+  pingTimer = null;
   if (game) {
     game.destroy(true);
     game = null;

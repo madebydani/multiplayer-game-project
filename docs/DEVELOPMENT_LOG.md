@@ -84,3 +84,16 @@
 - Ajustes derivados: prompts de personajes reescritos para vista desde justo encima, sin sombra en los personajes (la añade el código), anclaje en el centro del lienzo para rotar, se eliminan los fotogramas opcionales; aviso para comprobar la legibilidad a 64 px.
 - Archivos: `docs/ART_STYLE.md` (aprobado), `docs/ASSET_LIST.md`, `docs/DECISIONS.md` (D25).
 - Siguiente: el equipo genera los recursos; Claude Code espera autorización para preparar la carga de imágenes y la opción B.
+
+### 2026-11-13 — Fase 6: integración de arte preparada e interfaz (opción B)
+- Objetivo: preparar la carga del arte mientras el equipo lo genera con ChatGPT, y hacer la interfaz que no depende de él (prompt literal: «Si, ves haciendo y le pido a chatgpt que las vaya creando.»).
+- Herramienta: Claude Code (sesión en la nube).
+- Creado: `client/js/assets.js`, `client/js/settings.js`, `client/js/sound.js`, `test/e2e/ui.cjs`. Modificado: `server/index.js` (`/assets-manifest.json`, ping), `shared/events.js`, `client/index.html` (ajustes, créditos, logo, indicador de red), `client/css/style.css`, `client/js/main.js`, `client/js/scenes/GameScene.js` (imágenes con respaldo, rotación en 8 direcciones, sombra, anillo de color, balanceo, minimapa), `test/network.test.js`.
+- Decisiones: D26–D30.
+- Incidencias:
+  1. Con imágenes, el anillo de color del jugador quedaba oculto bajo el dibujo (tenía el tamaño del placeholder). Visto en la captura y corregido.
+  2. La latencia medida en local fue de 50–130 ms. Probable causa: el entorno de pruebas sin GPU, con dos navegadores a ~25 FPS. Pendiente de medir en un ordenador normal.
+  3. Una lectura de ángulo «hacia abajo» tras pulsar D resultó ser del monstruo congelado (comportamiento correcto).
+- Comprobado automáticamente: 44 pruebas `node:test` (nuevas: lista de imágenes y ping). Playwright sin imágenes: ajustes que persisten al recargar, créditos, minimapa y tecla M, indicador de conexión, limpieza al terminar, partida completa. Playwright con 5 imágenes de PRUEBA dibujadas por código (luego borradas): se usan las existentes y placeholders para las demás, rotación correcta, iconos en HUD y resultados, el servidor detecta imágenes nuevas sin reiniciar. Sin errores de consola.
+- No comprobado: que los sonidos se oigan bien (el navegador de pruebas no tiene salida de audio); arte real (aún no recibido); nombres del equipo en créditos (pendiente).
+- Evidencia: `docs/evidence/fase6-ajustes.png`, `fase6-partida-placeholders.png`, `fase6-imagenes-prueba.png` (imágenes de prueba, no arte final).

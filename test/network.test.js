@@ -140,3 +140,18 @@ test('duración elegida por el anfitrión y partida completa hasta victoria', as
   assert.equal(match.running, false);
   assert.equal(server.rooms.rooms.get(r.code).state, 'lobby');
 });
+
+test('el servidor publica la lista de imágenes disponibles', async () => {
+  const res = await fetch(`${url}/assets-manifest.json`);
+  assert.equal(res.status, 200);
+  const files = await res.json();
+  assert.ok(Array.isArray(files));
+  assert.ok(files.every((f) => /\.(png|jpe?g|webp|ogg|mp3|wav)$/i.test(f) && !f.includes('\\')));
+});
+
+test('ping: el servidor responde al instante', async () => {
+  const c = client();
+  const t0 = Date.now();
+  await c.timeout(2000).emitWithAck(EV.PING);
+  assert.ok(Date.now() - t0 < 500);
+});
