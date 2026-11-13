@@ -1,5 +1,6 @@
 // Flujo de pantallas: menú → sala → partida → resultados.
 import { EV } from '/shared/events.js';
+import { SPRINT_ENERGY_MS } from '/shared/config.js';
 import { socket, request } from './net.js';
 import { GameScene } from './scenes/GameScene.js';
 import { settings } from './settings.js';
@@ -185,7 +186,7 @@ socket.on(EV.GAME_STARTED, async (data) => {
     // Delta real entre fotogramas (ver docs/DECISIONS.md, D12).
     fps: { smoothStep: false },
   });
-  game.scene.add('Game', GameScene, true, { ...data, myId, socket, onState: updateHud });
+  game.scene.add('Game', GameScene, true, { ...data, myId, socket, onState: updateHud, onLocal: updateEnergy });
   window.__hunted = game; // acceso para pruebas automáticas
   updateHud({ timeLeftMs: data.durationMs, survivors: data.players.length - 1, events: [], players: data.players });
 });
@@ -210,6 +211,14 @@ function startPing() {
   };
   measure();
   pingTimer = setInterval(measure, 2000);
+}
+
+/** Barra de sprint: con el valor predicho (cada fotograma), en % y en texto. */
+function updateEnergy(me) {
+  const pct = Math.round((me.energy / SPRINT_ENERGY_MS) * 100);
+  $('energy-fill').style.width = `${pct}%`;
+  $('energy-fill').classList.toggle('exhausted', me.exhausted);
+  $('energy-text').textContent = me.exhausted ? 'agotado' : `${pct} %`;
 }
 
 /** Actualiza el HUD (HTML) con cada estado del servidor. */

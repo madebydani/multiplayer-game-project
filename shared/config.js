@@ -8,6 +8,12 @@ export const SPEED = {
   monster: 210, // px/s
 };
 
+// Sprint (fase 7a, docs/GAMEPLAY.md)
+export const SPRINT_MULTIPLIER = 1.4;
+export const SPRINT_ENERGY_MS = 2000; // sprint continuo con la barra llena
+export const SPRINT_RECHARGE_MS = 6000; // de vacía a llena sin esprintar
+export const SPRINT_RESTART_FRACTION = 0.25; // tras agotarla, mínimo para volver a esprintar
+
 export const CAPTURE_RADIUS = 40; // distancia máxima entre centros (px)
 export const CAPTURE_COOLDOWN_MS = 3000; // bloqueo tras transformarse
 export const MONSTER_START_FREEZE_MS = 5000; // ventaja inicial de los supervivientes

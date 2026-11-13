@@ -15,7 +15,7 @@ import {
   MIN_PLAYERS,
 } from '../shared/config.js';
 import { overlaps } from '../shared/collision.js';
-import { applyInput } from '../shared/movement.js';
+import { applyInput, initialSprint } from '../shared/movement.js';
 
 // Colores de los placeholders: uno por plaza (máx. 6).
 export const PLAYER_COLORS = [0x4fc3f7, 0xffb74d, 0xba68c8, 0x81c784, 0xf06292, 0xfff176];
@@ -62,6 +62,7 @@ export class Match {
         inputs: [],
         credit: MAX_INPUT_CREDIT,
         lastSeq: 0,
+        ...initialSprint(),
       };
       this.players.set(p.id, player);
       this.roster.set(p.id, player);
@@ -95,11 +96,11 @@ export class Match {
     if (this.result) return false;
     const p = this.players.get(playerId);
     if (!p || !input) return false;
-    const { seq, x, y } = input;
+    const { seq, x, y, s = 0 } = input;
     if (!Number.isInteger(seq) || seq <= p.lastSeq) return false;
-    if (![-1, 0, 1].includes(x) || ![-1, 0, 1].includes(y)) return false;
+    if (![-1, 0, 1].includes(x) || ![-1, 0, 1].includes(y) || ![0, 1].includes(s)) return false;
     if (p.inputs.length >= MAX_INPUT_CREDIT * 2) p.inputs.shift(); // cola acotada
-    p.inputs.push({ seq, x, y });
+    p.inputs.push({ seq, x, y, s });
     return true;
   }
 
@@ -225,6 +226,9 @@ export class Match {
         frozen: p.frozen,
         // ms que faltan para poder capturar (solo monstruos)
         cooldownMs: p.role === 'monster' ? Math.max(0, p.canCaptureAtMs - now) : 0,
+        energy: p.energy, // sin redondear: el cliente la predice con el mismo cálculo
+        exhausted: p.exhausted,
+        sprinting: p.sprinting,
       })),
     };
   }

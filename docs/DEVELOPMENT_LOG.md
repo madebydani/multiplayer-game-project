@@ -117,3 +117,13 @@
 - Respuesta del usuario (literal): «De momento dejamos esos bocetos, pero con opción a cambiarlo vale? Intentaré acabarlos con ChatGPT, pero ahora me está dando problemas. Puede seguir con lo demás por ahora.»
 - Cambio: `tools/art/build-art.cjs` ya no sobrescribe PNG existentes salvo con `--force`, para no borrar el arte que el equipo traiga de ChatGPT. Comprobado: sin `--force` no modifica ningún archivo.
 - Documentado en README, `ASSET_LIST.md` y D31.
+
+### 2026-11-13 — Fase 7a: sprint
+- Diseño de toda la fase 7 aprobado por el equipo sin cambios (3 preguntas de opción múltiple: «Sí, tal cual», «Los 5 objetos», «Mejoras por partes»). Documentado en `docs/GAMEPLAY.md` antes de programar, como pide §6.
+- Herramienta: Claude Code (sesión en la nube).
+- Modificado: `shared/config.js`, `shared/movement.js` (energía de sprint compartida), `server/match.js` (validación de `s`, energía en el estado), `shared/events.js`, `client/js/scenes/GameScene.js` (Shift, predicción, balanceo más rápido), `client/js/main.js` y `client/index.html`/`style.css` (barra de energía con texto), `test/match.test.js`.
+- Decisiones: D32, D33.
+- Incidencia evitada: la IA vio, antes de probarlo, que redondear la energía en el estado provocaría correcciones; se envía sin redondear (D33).
+- Comprobado automáticamente: 51 pruebas (7 nuevas: ×1,4, duración de 2 s, umbral del 25 %, recarga en 6 s, sin gasto quieto o congelado, valores no válidos rechazados, no se supera la velocidad enviando más mensajes). Playwright: la barra baja al ritmo previsto, «agotado» y recuperación correctos; **0 px de corrección** entre predicción y servidor; sin errores de consola.
+- Pendiente: sensación de juego con jugadores reales (¿2 s de sprint son pocos o muchos?).
+- Evidencia: `docs/evidence/fase7a-sprint.png`.

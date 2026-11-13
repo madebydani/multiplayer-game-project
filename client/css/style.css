@@ -339,3 +339,34 @@ input[type='range'] {
   border-radius: 6px;
   opacity: 0.9;
 }
+
+.energy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.energy-bar {
+  width: 70px;
+  height: 10px;
+  border: 1px solid #ffffff88;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+#energy-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #7cd992;
+}
+
+#energy-fill.exhausted {
+  background: #ff8a80;
+}
+
+.energy-text {
+  min-width: 3.2em;
+  font-family: ui-monospace, monospace;
+}

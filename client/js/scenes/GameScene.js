@@ -11,7 +11,7 @@
 // RED — jugadores remotos: INTERPOLACIÓN, dibujados INTERP_DELAY_MS en el pasado.
 import { PLAYER_RADIUS, TICK_MS, INTERP_DELAY_MS } from '/shared/config.js';
 import { EV } from '/shared/events.js';
-import { applyInput } from '/shared/movement.js';
+import { applyInput, initialSprint } from '/shared/movement.js';
 import { availableTextures, FILL } from '../assets.js';
 import { settings } from '../settings.js';
 
@@ -46,6 +46,7 @@ export class GameScene extends Phaser.Scene {
     this.socket = data.socket;
     this.initialPlayers = data.players;
     this.onStateCallback = data.onState ?? (() => {});
+    this.onLocalUpdate = data.onLocal ?? (() => {}); // cada fotograma, con mi estado predicho
   }
 
   preload() {
@@ -67,7 +68,16 @@ export class GameScene extends Phaser.Scene {
 
     const me = this.initialPlayers.find((p) => p.id === this.myId);
     // frozen empieza en true si soy el monstruo inicial (inmóvil 5 s).
-    this.me = { x: me.x, y: me.y, dx: 0, dy: 1, lastSeq: 0, role: me.role, frozen: me.role === 'monster' };
+    this.me = {
+      x: me.x,
+      y: me.y,
+      dx: 0,
+      dy: 1,
+      lastSeq: 0,
+      role: me.role,
+      frozen: me.role === 'monster',
+      ...initialSprint(),
+    };
     this.prev = { x: me.x, y: me.y }; // posición en el tick anterior (suavizado)
     this.pending = []; // entradas enviadas y aún no confirmadas
     this.seq = 0;
@@ -81,7 +91,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, -hudMargin, this.map.width, this.map.height + hudMargin);
     this.cameras.main.startFollow(mine.container, true, 0.2, 0.2);
 
-    this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,LEFT,DOWN,RIGHT');
+    this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,LEFT,DOWN,RIGHT,SHIFT');
     this.input.keyboard.on('keydown-M', () => this.toggleMinimap());
 
     this.createMinimap();
@@ -164,7 +174,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Orienta al jugador hacia donde se mueve y lo balancea al andar. */
-  setDirection(sprite, dx, dy, moving, time) {
+  setDirection(sprite, dx, dy, moving, time, sprinting = false) {
     if (dx !== 0 || dy !== 0) {
       const target = Math.atan2(dy, dx);
       // Giro suave (o instantáneo si se reducen las animaciones).
@@ -175,7 +185,8 @@ export class GameScene extends Phaser.Scene {
     sprite.arrow.setAlpha(moving ? 1 : 0.4);
 
     // Balanceo al andar: leve pulso de tamaño.
-    const bob = moving && !settings.reduceMotion ? 1 + 0.05 * Math.sin(time / 70) : 1;
+    // Al esprintar el balanceo es más rápido: así los demás lo notan.
+    const bob = moving && !settings.reduceMotion ? 1 + 0.05 * Math.sin(time / (sprinting ? 40 : 70)) : 1;
     sprite.body.setScale(sprite.baseScale * bob);
   }
 
@@ -361,6 +372,8 @@ export class GameScene extends Phaser.Scene {
     this.me.y = mine.y;
     this.me.role = mine.role;
     this.me.frozen = mine.frozen;
+    this.me.energy = mine.energy;
+    this.me.exhausted = mine.exhausted;
     this.pending = this.pending.filter((i) => i.seq > mine.seq);
     for (const input of this.pending) applyInput(this.me, input, TICK_MS / 1000, this.map);
   }
@@ -370,6 +383,7 @@ export class GameScene extends Phaser.Scene {
     return {
       x: (k.D.isDown || k.RIGHT.isDown ? 1 : 0) - (k.A.isDown || k.LEFT.isDown ? 1 : 0),
       y: (k.S.isDown || k.DOWN.isDown ? 1 : 0) - (k.W.isDown || k.UP.isDown ? 1 : 0),
+      s: k.SHIFT.isDown ? 1 : 0,
     };
   }
 
@@ -381,7 +395,7 @@ export class GameScene extends Phaser.Scene {
     while (this.acc >= TICK_MS) {
       this.acc -= TICK_MS;
       const dir = this.readInput();
-      const input = { seq: ++this.seq, x: dir.x, y: dir.y };
+      const input = { seq: ++this.seq, x: dir.x, y: dir.y, s: dir.s };
       this.prev = { x: this.me.x, y: this.me.y };
       applyInput(this.me, input, TICK_MS / 1000, this.map);
       this.pending.push(input);
@@ -393,7 +407,8 @@ export class GameScene extends Phaser.Scene {
     const a = this.acc / TICK_MS;
     const mine = this.sprites.get(this.myId);
     mine.container.setPosition(this.prev.x + (this.me.x - this.prev.x) * a, this.prev.y + (this.me.y - this.prev.y) * a);
-    this.setDirection(mine, this.me.dx, this.me.dy, this.moving, time);
+    this.setDirection(mine, this.me.dx, this.me.dy, this.moving, time, this.me.sprinting);
+    this.onLocalUpdate(this.me);
 
     this.renderRemotes(time);
     this.drawMinimap();
@@ -428,7 +443,7 @@ export class GameScene extends Phaser.Scene {
       const y = o.y + (p.y - o.y) * a;
       const moving = Math.abs(p.x - o.x) + Math.abs(p.y - o.y) > 0.5;
       sprite.container.setPosition(x, y);
-      this.setDirection(sprite, p.dx, p.dy, moving, time);
+      this.setDirection(sprite, p.dx, p.dy, moving, time, p.sprinting);
     }
     // Jugadores que ya no están (desconectados): se ocultan.
     for (const [id, sprite] of this.sprites) {

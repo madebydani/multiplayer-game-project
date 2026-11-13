@@ -138,5 +138,15 @@
 - Script: `tools/art/build-art.cjs` (requiere Playwright). Fuentes SVG en `tools/art/svg/`.
 - Revisión del equipo: se aceptan como **bocetos provisionales**, con opción a sustituirlos por arte hecho con ChatGPT. Para no perder ese arte, el script ya no sobrescribe PNG existentes salvo con `--force`.
 
+### D32 — Diseño de la fase 7 (2026-11-13) — aprobado
+- Propuesta de Claude Code, aprobada por el equipo sin cambios: sprint común (Shift), habilidades propias con Espacio (señuelo / rastreo), 5 objetos (Energía, Humo, Invisibilidad / Radar, Furia), inventario de 2 con teclas 1/2. Orden: 7a sprint, 7b habilidades, 7c objetos y móvil al final. Detalle en `docs/GAMEPLAY.md`.
+- Duplicados evitados (§6): se descartan las «botas» (duplicaban el sprint); «Energía» recarga el sprint en vez de ser otro sprint; rastreo (dirección a uno) y radar (posición exacta de todos) son distintos.
+- La tabla de controles D9 queda confirmada.
+
+### D33 — Energía del sprint dentro de la función de movimiento compartida (2026-11-13, fase 7a)
+- Decisión: la energía se calcula en `applyInput` (`shared/movement.js`), por entrada, igual en cliente y servidor.
+- Detalle: el servidor envía la energía sin redondear. Redondearla haría que el cliente reconciliara desde un valor distinto y podría agotarse un tick antes o después que en el servidor, con pequeños tirones.
+- Comprobado en navegador: corrección máxima entre predicción y servidor durante 2 s de sprint = 0 px.
+
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
 - `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

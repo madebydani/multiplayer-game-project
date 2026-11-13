@@ -255,3 +255,89 @@ test('desconexión: quedan menos de 2 jugadores → abandono', () => {
   assert.equal(m.result.reason, 'abandon');
   assert.equal(m.running, false);
 });
+
+// ---------- Fase 7a: sprint ----------
+import {
+  SPRINT_MULTIPLIER,
+  SPRINT_ENERGY_MS,
+  SPRINT_RECHARGE_MS,
+  SPRINT_RESTART_FRACTION,
+} from '../shared/config.js';
+import { applyInput, initialSprint } from '../shared/movement.js';
+
+const openMap = { width: 100000, height: 1000, obstacles: [] };
+const runner = () => ({ x: 100, y: 500, dx: 0, dy: 0, lastSeq: 0, role: 'survivor', frozen: false, ...initialSprint() });
+const dt = TICK_MS / 1000;
+
+test('sprint: ×1,4 de velocidad mientras hay energía', () => {
+  const p = runner();
+  applyInput(p, { seq: 1, x: 1, y: 0, s: 1 }, dt, openMap);
+  assert.ok(Math.abs(p.x - (100 + SPEED.survivor * SPRINT_MULTIPLIER * dt)) < 1e-9);
+  assert.equal(p.sprinting, true);
+  assert.equal(p.energy, SPRINT_ENERGY_MS - TICK_MS);
+});
+
+test('sprint: la energía dura 2 s; después, velocidad normal y "agotado"', () => {
+  const p = runner();
+  const ticks = SPRINT_ENERGY_MS / TICK_MS;
+  for (let i = 1; i <= ticks; i++) applyInput(p, { seq: i, x: 1, y: 0, s: 1 }, dt, openMap);
+  assert.equal(p.energy, 0);
+  assert.equal(p.exhausted, true);
+  const x0 = p.x;
+  applyInput(p, { seq: ticks + 1, x: 1, y: 0, s: 1 }, dt, openMap);
+  assert.ok(Math.abs(p.x - x0 - SPEED.survivor * dt) < 1e-9, 'sin energía, velocidad normal');
+});
+
+test('sprint: tras agotarse, hace falta el 25 % para volver a esprintar', () => {
+  const p = runner();
+  let seq = 0;
+  for (let i = 0; i < SPRINT_ENERGY_MS / TICK_MS; i++) applyInput(p, { seq: ++seq, x: 1, y: 0, s: 1 }, dt, openMap);
+  const ticksTo25 = Math.ceil((SPRINT_RECHARGE_MS * SPRINT_RESTART_FRACTION) / TICK_MS);
+  // Manteniendo Shift pulsado durante la recarga, no esprinta hasta el 25 %.
+  for (let i = 0; i < ticksTo25; i++) {
+    applyInput(p, { seq: ++seq, x: 1, y: 0, s: 1 }, dt, openMap);
+    assert.equal(p.sprinting, false, `tick ${i}`);
+  }
+  applyInput(p, { seq: ++seq, x: 1, y: 0, s: 1 }, dt, openMap);
+  assert.equal(p.sprinting, true);
+});
+
+test('sprint: la barra vacía se llena en 6 s sin esprintar', () => {
+  const p = { ...runner(), energy: 0, exhausted: true };
+  for (let i = 1; i <= SPRINT_RECHARGE_MS / TICK_MS; i++) applyInput(p, { seq: i, x: 0, y: 0, s: 0 }, dt, openMap);
+  assert.ok(Math.abs(p.energy - SPRINT_ENERGY_MS) < 1e-6);
+});
+
+test('sprint: no gasta energía quieto ni congelado', () => {
+  const p = runner();
+  applyInput(p, { seq: 1, x: 0, y: 0, s: 1 }, dt, openMap);
+  assert.equal(p.energy, SPRINT_ENERGY_MS);
+  const f = { ...runner(), frozen: true };
+  applyInput(f, { seq: 1, x: 1, y: 0, s: 1 }, dt, openMap);
+  assert.equal(f.x, 100);
+  assert.equal(f.energy, SPRINT_ENERGY_MS);
+});
+
+test('sprint: el servidor rechaza valores de sprint no válidos', () => {
+  const m = newMatch(players);
+  assert.equal(m.addInput('b', { seq: 1, x: 1, y: 0, s: 2 }), false);
+  assert.equal(m.addInput('b', { seq: 1, x: 1, y: 0, s: true }), false);
+  assert.equal(m.addInput('b', { seq: 1, x: 1, y: 0, s: 1 }), true);
+  assert.equal(m.addInput('b', { seq: 2, x: 1, y: 0 }), true); // sin "s" = no esprintar
+});
+
+test('sprint: ni enviando muchas entradas se supera la velocidad de sprint', () => {
+  const m = newMatch(players);
+  const b = m.players.get('b');
+  m.players.get('a').x = 2200;
+  b.x = 300;
+  b.y = 900;
+  let seq = 0;
+  const ticks = 30;
+  for (let t = 0; t < ticks; t++) {
+    for (let k = 0; k < 10; k++) m.addInput('b', { seq: ++seq, x: 1, y: 0, s: 1 });
+    m.step();
+  }
+  const max = SPEED.survivor * SPRINT_MULTIPLIER * dt * (ticks + MAX_INPUT_CREDIT);
+  assert.ok(b.x - 300 <= max + 1e-6);
+});

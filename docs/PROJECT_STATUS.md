@@ -14,7 +14,10 @@
 - **Pendiente del equipo:** revisar el arte (`docs/evidence/fase6-arte-*.png` o jugando) y dar los nombres para Créditos.
 - Pendiente de verificar: sonido en un ordenador real; latencia en un ordenador normal; dos ordenadores en LAN.
 
-## Siguiente (pendiente de autorización)
+## Fase 7 — Mejoras (en curso)
+- 7a Sprint: **completada**. 7b Habilidades, 7c Objetos y móvil: pendientes (diseño aprobado en `docs/GAMEPLAY.md`).
+
+## Siguiente
 - Fase 7 — Mejoras opcionales: power-ups, habilidades, inventario, versión móvil. Antes, definir la tabla de controles (D9) y cada habilidad (efecto, duración, recarga, cómo se muestra).
 - Fase 8 — Entrega: prueba con dos ordenadores, estabilidad, README, diario y material para la presentación.
 

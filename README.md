@@ -27,6 +27,7 @@ Abrir `http://localhost:3000`, escribir un nombre y **Crear sala**. Los demás s
 | Tecla | Acción |
 |---|---|
 | WASD o flechas | Moverse |
+| Shift | Sprint (barra de energía en el HUD) |
 | M | Mostrar u ocultar el minimapa |
 
 En **Ajustes** se regula el volumen y se pueden reducir las animaciones (por defecto sigue la preferencia del sistema operativo).
@@ -107,6 +108,7 @@ El servidor publica qué imágenes existen (`/assets-manifest.json`) y el juego 
 | `docs/HUNTED_SPEC.md` | Especificación original (literal) |
 | `docs/REQUIREMENTS.md` | Requisitos académicos y su estado |
 | `docs/DECISIONS.md` | Decisiones de diseño y alternativas |
+| `docs/GAMEPLAY.md` | Controles, sprint, habilidades y objetos (fase 7) |
 | `docs/DEVELOPMENT_LOG.md` | Diario de desarrollo con IA |
 | `docs/PROMPT_EVIDENCE.md` | Prompts relevantes y respuestas de la IA |
 | `docs/PROJECT_STATUS.md` | Estado actual y siguiente fase |
