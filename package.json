@@ -1,0 +1,18 @@
+{
+  "name": "hunted",
+  "version": "0.1.0",
+  "description": "HUNTED - juego multijugador de persecución e infección en navegador",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "5.1.0",
+    "phaser": "3.90.0"
+  }
+}

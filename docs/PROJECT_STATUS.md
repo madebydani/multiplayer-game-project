@@ -3,13 +3,14 @@
 **Actualizado:** 2026-11-13
 
 ## Estado actual
-- Fase 1 (planificación): **completada**. Plan y decisiones D1–D10 aprobados (`DECISIONS.md`).
-- No hay código de juego todavía.
+- Fase 1 (planificación): completada. Decisiones en `DECISIONS.md`.
+- Fase 2 (prototipo local): **completada**. Un jugador con WASD/flechas, mapa fijo de placeholders, cámara y colisiones. 8 pruebas automáticas pasan.
+- Pendiente de verificar: prueba manual del equipo en su navegador (`npm install`, `npm start`, `http://localhost:3000`).
 
 ## Siguiente fase (pendiente de autorización)
-**Fase 2 — Prototipo local:** `package.json`, servidor Express que sirve el cliente, escena Phaser con mapa fijo sencillo (placeholders), un personaje con WASD, cámara que lo sigue, colisiones mediante `shared/collision.js` y pruebas `node:test` de colisiones.
+**Fase 3 — Salas y red:** Socket.IO; pantalla de menú (nombre, crear sala, unirse por código); sala con código copiable, lista de jugadores, anfitrión y plazas (máx. 6); el servidor simula el movimiento a partir de las entradas (D1) y los clientes ven a los demás con interpolación.
 
-Criterio de cierre: `npm start` funciona; el personaje se mueve, no atraviesa obstáculos y la cámara lo sigue.
+Criterio de cierre: dos navegadores independientes ven moverse al otro en la misma sala; salas aisladas; pruebas de salas pasan.
 
 ## Notas para retomar en una sesión nueva
 - Especificación: `docs/HUNTED_SPEC.md`.

@@ -4,7 +4,7 @@ Videojuego multijugador online en navegador, 2D top-down, de persecución e infe
 Un jugador empieza como monstruo; cada superviviente capturado se transforma en monstruo.
 Los supervivientes ganan si queda al menos uno cuando se acaba el tiempo.
 
-> **Estado:** fase 1 (planificación). Aún no hay código jugable. Ver `docs/PROJECT_STATUS.md`.
+> **Estado:** fase 2 (prototipo local, un jugador). Aún no hay multijugador. Ver `docs/PROJECT_STATUS.md`.
 
 ## Tecnologías
 - Cliente: HTML5, CSS3, JavaScript (ES modules), Phaser 3.
@@ -12,10 +12,22 @@ Los supervivientes ganan si queda al menos uno cuando se acaba el tiempo.
 - Código compartido cliente/servidor en `shared/` (configuración, colisiones, eventos).
 
 ## Requisitos
-- Node.js 18 o superior y npm. *(Pendiente de concretar en fase 2.)*
+- Node.js 18 o superior y npm (probado con Node 22).
+- Navegador de escritorio actual.
 
 ## Instalación y ejecución
-*Pendiente (fase 2).* Se documentará `npm install` y `npm start`.
+```bash
+npm install
+```
+```bash
+npm start
+```
+Abrir `http://localhost:3000`. Controles: WASD o flechas. Puerto configurable con la variable `PORT`.
+
+## Pruebas
+```bash
+npm test
+```
 
 ## Jugar en red local (dos ordenadores)
 *Pendiente (fase 3).* Un PC ejecuta el servidor; el otro abre `http://<IP-local>:<puerto>`.

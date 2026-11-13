@@ -43,3 +43,17 @@
 ### D10 — Prueba en dos máquinas por red local (2026-11-13)
 - Decisión: prueba obligatoria en LAN (un PC servidor, otro por IP local).
 - Alternativas: despliegue público (Render/Railway) o ambas. No elegidas por ahora.
+
+### D11 — Colisiones propias en lugar de Arcade Physics de Phaser (2026-11-13, fase 2)
+- Decisión: colisiones círculo-círculo y círculo-rectángulo en `shared/collision.js`; Phaser solo dibuja, gestiona cámara y teclado.
+- Alternativa: Arcade Physics de Phaser. Descartada: no se puede ejecutar en el servidor Node, y el servidor y el cliente deben calcular el mismo movimiento (D1).
+- Detalles: movimiento dividido en subpasos (no atraviesa paredes finas) y resolución por ejes (el personaje resbala junto a obstáculos).
+- Propuesta: Claude Code.
+
+### D12 — Delta de tiempo real en Phaser (`smoothStep: false`) (2026-11-13, fase 2)
+- Problema detectado en prueba: a ~28 FPS el personaje iba a 90 px/s en lugar de 200, porque Phaser suaviza el delta a ~16,7 ms.
+- Decisión: desactivar `smoothStep`; se mantiene un tope de 100 ms por fotograma.
+- Motivo: la velocidad debe ser la misma en cualquier equipo; imprescindible para sincronizar con el servidor en fase 3.
+
+### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
+- `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm). Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

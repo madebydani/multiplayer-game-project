@@ -30,3 +30,8 @@ Los prompts del usuario se citan literalmente cuando son visibles en la sesión.
 > Si
 
 **Respuesta (paráfrasis):** inicio de la fase 1: creación de documentación base y estructura de carpetas.
+
+**Prompt 5 (literal), aprobando la fase 2:**
+> Si
+
+**Respuesta (paráfrasis):** implementa el prototipo local, ejecuta pruebas, detecta y corrige tres problemas (script de test, velocidad dependiente de FPS, obstáculos solapados) y documenta.
