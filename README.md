@@ -86,9 +86,11 @@ test/              node:test (unidad e integración) y e2e/ (Playwright)
 5. Envía a los clientes la **lista final** de obstáculos (no solo la semilla), así todos ven exactamente lo mismo.
 
 ### Arte e imágenes
-Las ilustraciones están dibujadas con código vectorial en `tools/art/build-art.cjs` (fuentes SVG en `tools/art/svg/`) y exportadas a PNG en `client/assets/`. Para regenerarlas tras cambiar un dibujo (requiere Playwright):
+Las ilustraciones actuales son **bocetos provisionales** dibujados con código vectorial en `tools/art/build-art.cjs` (fuentes SVG en `tools/art/svg/`) y exportados a PNG en `client/assets/`. Para sustituir una por arte definitivo, basta con reemplazar el PNG manteniendo el nombre y el tamaño de `docs/ASSET_LIST.md`.
+
+Para regenerar los bocetos (requiere Playwright). Por defecto no sobrescribe los PNG que ya existen:
 ```bash
-node tools/art/build-art.cjs
+node tools/art/build-art.cjs --force
 ```
 El servidor publica qué imágenes existen (`/assets-manifest.json`) y el juego usa las que encuentre; si falta alguna, la dibuja con formas geométricas provisionales.
 

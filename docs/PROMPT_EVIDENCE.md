@@ -74,3 +74,8 @@ Los prompts del usuario se citan literalmente cuando son visibles en la sesión.
 > Quiero que cuando acabes todos los placeholders y tengas listo todo, generes tu las imágenes porque ChatGPT no sabe interpretar bien las peticiones.
 
 **Respuesta (paráfrasis):** acepta el cambio de reparto y aclara que no tiene un generador de imágenes, sino que dibujará con código SVG. Genera 14 recursos, los revisa en una hoja de contactos, redibuja el superviviente y retoca el logo; al probarlos en partida detecta y corrige dos fallos de interfaz anteriores.
+
+**Prompt 13 (literal):**
+> De momento dejamos esos bocetos, pero con opción a cambiarlo vale? Intentaré acabarlos con ChatGPT, pero ahora me está dando problemas. Puede seguir con lo demás por ahora.
+
+**Respuesta (paráfrasis):** marca el arte como provisional, protege las futuras imágenes del equipo frente a sobrescrituras y propone el diseño de la fase 7 para su aprobación.

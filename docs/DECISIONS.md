@@ -136,6 +136,7 @@
 - Aclaración de la IA: Claude Code no dispone de un generador de imágenes; dibuja ilustraciones vectoriales (SVG) con código y las convierte a PNG. Encaja con el estilo aprobado (plano, vectorial), pero el resultado es más geométrico que una ilustración pintada.
 - Ventajas: reproducible (mismo resultado en cada ejecución), editable (cada dibujo es una función), sin dudas de licencia (obra generada para el proyecto; el logo usa la fuente Inter, con licencia OFL).
 - Script: `tools/art/build-art.cjs` (requiere Playwright). Fuentes SVG en `tools/art/svg/`.
+- Revisión del equipo: se aceptan como **bocetos provisionales**, con opción a sustituirlos por arte hecho con ChatGPT. Para no perder ese arte, el script ya no sobrescribe PNG existentes salvo con `--force`.
 
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
 - `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

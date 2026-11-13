@@ -112,3 +112,8 @@
 - Comprobado visualmente por la IA (capturas): legibilidad de los personajes a 64 px y 96 px, giro en partida, menú, partida y resultados.
 - Pendiente: revisión y aprobación del arte por el equipo; nombres para Créditos.
 - Evidencia: `docs/evidence/fase6-arte-hoja.png`, `fase6-arte-partida.png`, `fase6-arte-menu.png`, `fase6-arte-resultados.png`.
+
+### 2026-11-13 — Arte aceptado como bocetos provisionales
+- Respuesta del usuario (literal): «De momento dejamos esos bocetos, pero con opción a cambiarlo vale? Intentaré acabarlos con ChatGPT, pero ahora me está dando problemas. Puede seguir con lo demás por ahora.»
+- Cambio: `tools/art/build-art.cjs` ya no sobrescribe PNG existentes salvo con `--force`, para no borrar el arte que el equipo traiga de ChatGPT. Comprobado: sin `--force` no modifica ningún archivo.
+- Documentado en README, `ASSET_LIST.md` y D31.

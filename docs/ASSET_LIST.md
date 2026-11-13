@@ -3,6 +3,8 @@
 Estados: `pendiente` → `recibido` → `integrado` → `probado`.
 Herramienta prevista inicialmente: ChatGPT. **Cambio del 2026-11-13 (D31):** el equipo pidió que Claude Code generase las imágenes porque ChatGPT no interpretaba bien las peticiones. Se dibujaron con código SVG en `tools/art/build-art.cjs` (fuentes en `tools/art/svg/`) y se convirtieron a PNG con Chromium. Los prompts de abajo se conservan como especificación de cada recurso.
 
+> **Estado (2026-11-13, decisión del equipo):** son **bocetos provisionales**. El equipo intentará terminarlos con ChatGPT; para sustituir uno, se reemplaza el PNG con el mismo nombre y se anota en el registro. El script de bocetos no sobrescribe archivos existentes salvo con `--force`.
+
 > **Estilo:** ver `docs/ART_STYLE.md` (aprobado el 2026-11-13: vista cenital pura, animación por código). Si el estilo cambia, ajustar los prompts antes de generar.
 
 ## Integración (ya preparada en el código)

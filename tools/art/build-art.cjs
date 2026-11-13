@@ -2,10 +2,15 @@
 // Autor: Claude Code, a petición del equipo (ver docs/DECISIONS.md, D31).
 // Estilo: docs/ART_STYLE.md (vista cenital pura, ilustración plana, paleta fija).
 //
+// Son BOCETOS PROVISIONALES: el equipo puede sustituir cualquier PNG por una
+// ilustración hecha con otra herramienta (p. ej. ChatGPT) con el mismo nombre.
+//
 // Uso (requiere Playwright con Chromium instalado):
-//   node tools/art/build-art.cjs
-// Escribe los SVG fuente en tools/art/svg/ y los PNG en client/assets/.
-// Para cambiar un dibujo: editar su función aquí y volver a ejecutar.
+//   node tools/art/build-art.cjs                  → crea solo los PNG que NO existen
+//   node tools/art/build-art.cjs --force          → regenera y SOBRESCRIBE todos
+//   node tools/art/build-art.cjs --force monster  → regenera solo los que contienen "monster"
+// Los SVG fuente se escriben siempre en tools/art/svg/.
+// Por defecto no se sobrescribe nada: así no se pierden imágenes del equipo.
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require('playwright');
@@ -422,7 +427,9 @@ const ASSETS = {
 };
 
 (async () => {
-  const only = process.argv[2]; // opcional: generar solo un recurso
+  const args = process.argv.slice(2);
+  const force = args.includes('--force');
+  const only = args.find((a) => !a.startsWith('--')); // opcional: solo un recurso
   const browser = await chromium.launch();
   const page = await browser.newPage();
   for (const [name, [draw, w, h]] of Object.entries(ASSETS)) {
@@ -435,6 +442,10 @@ const ASSETS = {
     await page.setViewportSize({ width: w, height: h });
     await page.setContent(`<html><body style="margin:0;background:transparent">${source}</body></html>`);
     const pngPath = path.join(OUT_DIR, `${name}.png`);
+    if (fs.existsSync(pngPath) && !force) {
+      console.log(`${name}.png  ya existe: no se toca (usa --force para sobrescribir)`);
+      continue;
+    }
     fs.mkdirSync(path.dirname(pngPath), { recursive: true });
     await page.locator('svg').screenshot({ path: pngPath, omitBackground: true });
     console.log(`${name}.png  ${w}×${h}`);
