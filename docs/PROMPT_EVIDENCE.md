@@ -57,3 +57,10 @@ Los prompts del usuario se citan literalmente cuando son visibles en la sesión.
 > La A
 
 **Respuesta (paráfrasis):** redacta la propuesta de estilo y la lista de recursos con prompts para ChatGPT, marcadas como pendientes de aprobación.
+
+**Prompt 10 (literal), respuesta a las tres preguntas de estilo:**
+> 1. Vista desde arriba.
+> 2. Si.
+> 3. La que recomiendas
+
+**Respuesta (paráfrasis):** marca el estilo como aprobado y reescribe los prompts para vista cenital pura; señala que los personajes no deben llevar sombra dibujada porque el sprite rotará.

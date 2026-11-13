@@ -77,3 +77,10 @@
 - Decisión: D25 (propuesta pendiente de aprobación).
 - Pruebas: no aplica (solo documentación).
 - Siguiente: el equipo revisa la propuesta y genera los recursos de prioridad 1; mientras, se puede hacer la opción B (interfaz sin arte).
+
+### 2026-11-13 — Fase 6: estilo aprobado por el equipo
+- Respuesta del usuario (literal): «1. Vista desde arriba. 2. Si. 3. La que recomiendas».
+- Cambio respecto a la propuesta: vista cenital pura con rotación del sprite en lugar de 3/4 con volteo.
+- Ajustes derivados: prompts de personajes reescritos para vista desde justo encima, sin sombra en los personajes (la añade el código), anclaje en el centro del lienzo para rotar, se eliminan los fotogramas opcionales; aviso para comprobar la legibilidad a 64 px.
+- Archivos: `docs/ART_STYLE.md` (aprobado), `docs/ASSET_LIST.md`, `docs/DECISIONS.md` (D25).
+- Siguiente: el equipo genera los recursos; Claude Code espera autorización para preparar la carga de imágenes y la opción B.

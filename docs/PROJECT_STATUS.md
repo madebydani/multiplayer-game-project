@@ -9,8 +9,8 @@
 - Pendiente de verificar por el equipo: **dos ordenadores** en LAN; partida con 3+ jugadores reales; equilibrio (velocidades, densidad del bosque, posición de los puntos de aparición).
 
 ## Fase 6 — Arte e interfaz (en curso)
-- Hecho: propuesta de estilo (`ART_STYLE.md`) y lista de 16 recursos con prompts (`ASSET_LIST.md`). **Pendiente de aprobación del equipo.**
-- Siguiente paso del equipo: aprobar o ajustar el estilo, generar con ChatGPT los recursos de prioridad 1 (superviviente y monstruo), subirlos a `client/assets/` y rellenar el registro de `ASSET_LIST.md`.
+- Hecho: estilo **aprobado** (vista cenital pura, paleta, animación por código) en `ART_STYLE.md` y lista de 16 recursos con prompts en `ASSET_LIST.md`.
+- Siguiente paso del equipo: generar con ChatGPT los recursos de prioridad 1 (superviviente y monstruo), subirlos a `client/assets/` y rellenar el registro de `ASSET_LIST.md`.
 - Mientras tanto, Claude Code puede (con autorización): preparar la carga de imágenes con respaldo automático a los placeholders si falta alguna, y hacer la opción B (créditos, ajustes de volumen y de reducir animaciones, minimapa, indicador de conexión).
 
 ## Notas para retomar en una sesión nueva

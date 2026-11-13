@@ -101,11 +101,14 @@
 - Decisión: los arbustos no tienen colisión y se dibujan debajo de los jugadores.
 - Motivo: ocultarse queda para el objeto «humo»/invisibilidad (fase 7); que un arbusto tape a un jugador ahora sería confuso.
 
-### D25 — Especificación de arte antes de integrar (2026-11-13, fase 6) — PROPUESTA
+### D25 — Especificación de arte antes de integrar (2026-11-13, fase 6) — APROBADA con cambios
 - Elección del usuario: opción A (especificar el arte primero) frente a B (pulir la interfaz sin arte).
 - Propuesta de Claude Code en `ART_STYLE.md` y `ASSET_LIST.md`, **pendiente de aprobación**: vista 3/4 con volteo horizontal, paleta con valores hexadecimales, recursos a 2× con fondo transparente, una imagen fija por personaje y animación por código.
 - Motivo de la animación por código: los generadores de imagen no suelen mantener el mismo personaje entre fotogramas; así basta con una imagen coherente por personaje.
 - Identidad de cada jugador con un anillo de color dibujado por código, no con 6 variantes de imagen.
+- **Decisión del equipo:** vista **cenital pura con rotación** (en lugar de la 3/4 con volteo propuesta), paleta aprobada, animación por código.
+- Consecuencia técnica señalada por la IA: los personajes se generan sin sombra (giraría con el sprite) y el juego la dibuja por código; los prompts se reescribieron para vista desde justo encima.
+- Excepción propuesta: los iconos de interfaz, de frente, para que sean legibles a 32 px.
 
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
 - `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

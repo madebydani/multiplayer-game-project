@@ -1,6 +1,6 @@
 # Dirección artística
 
-> **Estado: PROPUESTA pendiente de aprobación del equipo** (2026-11-13). Redactada por Claude Code a partir de los criterios de la especificación (§7). Nada de esto es definitivo hasta que el equipo lo revise.
+> **Estado: APROBADO por el equipo** (2026-11-13), con un cambio respecto a la propuesta inicial: vista cenital pura en lugar de 3/4. Redactado por Claude Code a partir de los criterios de la especificación (§7) y las respuestas del equipo.
 > Los recursos finales se generan con ChatGPT y herramientas de imagen, bajo revisión humana. Claude Code solo los integra.
 
 ## Criterios fijados por la especificación (§7)
@@ -9,17 +9,18 @@
 - Personajes reconocibles; supervivientes y monstruos distinguibles por **forma e icono**, no solo por color.
 - Contraste suficiente para legibilidad y accesibilidad.
 
-## Propuesta
+## Estilo aprobado
 
 ### Perspectiva
-- **Vista cenital ligeramente inclinada (3/4 desde arriba)**, como en muchos juegos móviles de persecución: se ve la parte superior del personaje y un poco de su frente.
-- Los personajes miran **a la derecha**; el juego los voltea al ir a la izquierda.
-- Árboles, rocas y cabañas vistos desde arriba con la misma inclinación, con una sombra suave proyectada hacia **abajo a la derecha** (luz desde arriba a la izquierda) en todos los recursos.
+- **Vista cenital pura**: todo se ve desde justo encima (cabeza, hombros, mochila; copas de árboles; tejados).
+- Los personajes se dibujan **orientados hacia la derecha** (el frente de la cabeza apunta a la derecha). El juego **rota** el sprite hacia la dirección en que se mueve, en las 8 direcciones.
+- **Los personajes no llevan sombra dibujada**: si la tuvieran, giraría con ellos. El juego dibuja por código una sombra suave bajo cada personaje.
+- Árboles, rocas, arbustos y cabañas no giran: llevan una sombra suave hacia **abajo a la derecha** (luz desde arriba a la izquierda).
 
 ### Estilo
 - Ilustración vectorial plana, formas redondeadas y simples, contorno oscuro fino (2–3 px a tamaño final), sin texturas fotorrealistas ni degradados complejos.
 - Tono «misterio amable»: noche de luna en el bosque, sin gore ni elementos de terror explícito. El monstruo debe dar respeto pero ser simpático (apto para todas las edades).
-- Siluetas muy diferentes: el **superviviente** es pequeño, redondeado, con mochila y linterna; el **monstruo** es más ancho, con cuernos/púas, ojos brillantes y garras. Deben distinguirse incluso en blanco y negro.
+- Siluetas muy diferentes vistas desde arriba: el **superviviente** es pequeño y redondeado (gorro, mochila, haz de linterna hacia delante); el **monstruo** es más ancho, con cuernos que sobresalen hacia delante, púas en el lomo y garras a los lados. Deben distinguirse incluso en blanco y negro y a 64 px.
 
 ### Paleta (valores hexadecimales para pegar en los prompts)
 | Uso | Color |
@@ -39,15 +40,15 @@
 - **Generar a 2× o más** (p. ej. 256×256 para personajes) y dejar que el juego reduzca: se ve más nítido.
 - Todos los objetos con **fondo transparente (PNG)**, centrados, sin recortar bordes y con un poco de margen.
 
-### Animación
+### Animación (aprobado: por código)
 Los generadores de imagen tienen dificultades para mantener el mismo personaje en varios fotogramas. Por eso:
-- **Mínimo necesario:** una imagen fija por personaje. El juego añade por código balanceo al andar, giro izquierda/derecha, aparición, destello de transformación y translucidez durante el bloqueo.
-- **Opcional:** 2 fotogramas de paso por personaje, solo si salen coherentes.
+- Una imagen fija por personaje. El juego añade por código: rotación hacia la dirección de movimiento, balanceo y leve «respiración» al andar, sombra, aparición, destello de transformación y translucidez durante el bloqueo.
+- Fotogramas dibujados: descartados por ahora.
 
 ### Identidad de cada jugador
 No hace falta una imagen por color: el juego dibuja un **anillo de color bajo los pies** y el nombre encima. El rol se reconoce por el dibujo (superviviente o monstruo) y por el icono ●/★.
 
-## Pendiente de aprobar
-1. ¿Vista 3/4 con volteo, o cenital pura con rotación del sprite?
-2. ¿La paleta y el tono «misterio amable»?
-3. ¿Animación por código (recomendado) o fotogramas dibujados?
+## Decisiones del equipo (2026-11-13)
+1. Vista: **cenital pura** con rotación del sprite (la propuesta era 3/4 con volteo).
+2. Paleta y tono «misterio amable»: **aprobados**.
+3. Animación: **por código**, como se recomendó.
