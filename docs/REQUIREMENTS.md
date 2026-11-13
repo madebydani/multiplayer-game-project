@@ -4,10 +4,10 @@ Estados: `pendiente` / `implementado` / `probado`. Fuente: `HUNTED_SPEC.md` §2.
 
 | # | Requisito | Estado | Fase prevista | Evidencia |
 |---|---|---|---|---|
-| 1 | Mínimo dos jugadores desde **máquinas diferentes** en una misma partida | pendiente | 3 (red) · 8 (prueba LAN) | — |
+| 1 | Mínimo dos jugadores desde **máquinas diferentes** en una misma partida | implementado; probado con 2 navegadores independientes en una máquina; **pendiente** prueba con 2 ordenadores | 3 · 8 (prueba LAN) | `test/network.test.js`, `test/e2e/two-browsers.cjs`, `docs/evidence/fase3-*.png` |
 | 2 | Mapa **aleatorio por partida** y compartido de forma coherente | pendiente | 5 | — |
 | 3 | Objetivo, reglas y condiciones de victoria claras | pendiente | 4 (lógica) · 6 (UI) | Reglas definidas en `DECISIONS.md` |
-| 4 | Comunicación en tiempo real; el servidor gestiona y comunica el resultado | pendiente | 3 · 4 (`gameEnded`) | — |
+| 4 | Comunicación en tiempo real; el servidor gestiona y comunica el resultado | tiempo real implementado y probado; resultado pendiente (fase 4) | 3 · 4 | `test/network.test.js` |
 | 5 | Juego ejecutable, con estética, usabilidad y accesibilidad | implementado parcialmente (ejecutable en local, placeholders, controles WASD/flechas) | 2–6 | `docs/evidence/fase2-*.png` |
 | 6 | Documentación del trabajo con IA | implementado (en curso) | todas | `DEVELOPMENT_LOG.md`, `PROMPT_EVIDENCE.md`, `DECISIONS.md` |
 

@@ -7,7 +7,50 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div id="game"></div>
+  <!-- Menú principal -->
+  <main id="menu" class="screen">
+    <h1>HUNTED</h1>
+    <p class="subtitle">Sobrevive en el bosque… o caza a los demás.</p>
+
+    <label for="name">Tu nombre</label>
+    <input id="name" maxlength="16" autocomplete="nickname" placeholder="Ej.: Lobo">
+
+    <button id="btn-create" class="primary">Crear sala</button>
+
+    <div class="join-row">
+      <label for="code" class="visually-hidden">Código de sala</label>
+      <input id="code" maxlength="4" placeholder="CÓDIGO" autocomplete="off" spellcheck="false">
+      <button id="btn-join">Unirse</button>
+    </div>
+
+    <p id="menu-error" class="error" role="alert"></p>
+  </main>
+
+  <!-- Sala de espera -->
+  <main id="lobby" class="screen" hidden>
+    <h2>Sala <span id="lobby-code" class="code"></span></h2>
+    <button id="btn-copy" class="small">Copiar código</button>
+    <p id="copy-status" class="hint" aria-live="polite"></p>
+
+    <h3>Jugadores <span id="lobby-count"></span></h3>
+    <ul id="lobby-players"></ul>
+
+    <button id="btn-start" class="primary">Empezar partida</button>
+    <p id="lobby-hint" class="hint"></p>
+    <button id="btn-leave">Salir de la sala</button>
+    <p id="lobby-error" class="error" role="alert"></p>
+  </main>
+
+  <!-- Partida -->
+  <div id="game-screen" class="screen" hidden>
+    <div id="game"></div>
+    <div id="hud">
+      <span id="hud-info"></span>
+      <button id="btn-quit" class="small">Salir</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
   <script src="/vendor/phaser/phaser.min.js"></script>
   <script type="module" src="js/main.js"></script>
 </body>

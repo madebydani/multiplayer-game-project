@@ -55,5 +55,21 @@
 - Decisión: desactivar `smoothStep`; se mantiene un tope de 100 ms por fotograma.
 - Motivo: la velocidad debe ser la misma en cualquier equipo; imprescindible para sincronizar con el servidor en fase 3.
 
+### D14 — Pasos fijos de 50 ms con número de secuencia (2026-11-13, fase 3)
+- Decisión: cliente y servidor avanzan en pasos de 50 ms; cada entrada lleva `seq`. El servidor devuelve la última `seq` procesada y el cliente reaplica las pendientes (reconciliación).
+- Alternativa: el servidor aplica "la última tecla pulsada" en cada tick y el cliente se mueve con su delta de fotograma. Descartada: cliente y servidor calcularían recorridos distintos y habría tirones constantes.
+- Comprobado: con las mismas entradas, la posición del servidor coincide con la predicha por el cliente (`test/network.test.js`).
+
+### D15 — Límite de entradas por jugador (anti speed hack) (2026-11-13, fase 3)
+- Decisión: cada tick da 1 crédito (máx. 4); cada entrada procesada gasta 1; cola máxima de 8 entradas (se descartan las más antiguas).
+- Consecuencia observada en pruebas: si llegan más de 8 entradas de golpe se pierden las antiguas y el cliente se corrige unos píxeles. Un cliente normal envía 1 cada 50 ms.
+
+### D16 — Menú y sala en HTML; Phaser solo para la partida (2026-11-13, fase 3)
+- Motivo: formularios nativos (campo de texto, botones, foco con teclado, `role="alert"`) son más accesibles y sencillos que recrearlos en el canvas.
+- Phaser se crea al empezar la partida y se destruye al terminar (sin bucles huérfanos en el cliente).
+
+### D17 — Códigos de sala de 4 caracteres sin caracteres ambiguos (2026-11-13, fase 3)
+- Alfabeto sin O/0, I/1 ni L; 31⁴ ≈ 923 000 combinaciones; se comprueba unicidad entre salas activas.
+
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
-- `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm). Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.
+- `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

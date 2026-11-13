@@ -24,3 +24,19 @@
 - Comprobado manualmente: no (pendiente que el equipo lo pruebe en su navegador).
 - Evidencia: `docs/evidence/fase2-inicio.png`, `docs/evidence/fase2-cabana.png`.
 - Siguiente: fase 3, salas y red.
+
+### 2026-11-13 — Fase 3: salas y red
+- Objetivo: crear/unirse con código, anfitrión, sincronización entre dos clientes (prompt literal: «Si»).
+- Herramienta: Claude Code (sesión en la nube).
+- Creado: `shared/events.js`, `shared/movement.js`, `server/rooms.js`, `server/match.js`, `client/js/net.js`, `test/rooms.test.js`, `test/match.test.js`, `test/network.test.js`, `test/e2e/two-browsers.cjs`. Modificado: `server/index.js`, `client/index.html`, `client/css/style.css`, `client/js/main.js`, `client/js/scenes/GameScene.js`, `shared/config.js`.
+- Decisiones: D14–D17 (pasos fijos con reconciliación, límite de entradas, menú en HTML, códigos sin ambigüedad).
+- Desconexión en partida: si quedan menos de 2 jugadores, fin por «abandono», bucle detenido y vuelta a la sala; sala vacía se elimina.
+- Incidencias:
+  1. La IA escribió una prueba que comparaba un valor consigo mismo (siempre pasaba); detectado al revisar y corregido para medir velocidad × tick.
+  2. Prueba de red suponía camino libre; el jugador chocaba con un árbol (80 px en vez de 100). Se cambió por una comprobación más útil: servidor == predicción del cliente.
+  3. Esa prueba falló (20 px de diferencia): enviaba 10 entradas de golpe y el límite anti-trampas descartó 2. Comportamiento correcto; la prueba se ajustó al ritmo real (D15).
+  4. `npm test` intentaba ejecutar también el script de Playwright de `test/e2e/` → patrón limitado a `test/*.test.js`.
+- Comprobado automáticamente: 24 pruebas `node:test` pasan (salas, entradas, anti speed hack, colisiones en servidor, bucle detenido, 2 clientes Socket.IO reales, salas aisladas). Playwright: 2 contextos de Chromium independientes crean/unen sala, solo el anfitrión ve «Empezar», ambos se mueven a la vez y ven las mismas posiciones; al salir uno, el otro vuelve a la sala con aviso de abandono; sin errores de consola.
+- Pendiente de verificar: dos ordenadores reales en LAN; comportamiento con latencia real de red; botón «Copiar código» (el navegador de pruebas no tiene portapapeles).
+- Evidencia: `docs/evidence/fase3-*.png`.
+- Siguiente: fase 4, núcleo de infección.

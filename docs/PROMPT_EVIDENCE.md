@@ -35,3 +35,8 @@ Los prompts del usuario se citan literalmente cuando son visibles en la sesión.
 > Si
 
 **Respuesta (paráfrasis):** implementa el prototipo local, ejecuta pruebas, detecta y corrige tres problemas (script de test, velocidad dependiente de FPS, obstáculos solapados) y documenta.
+
+**Prompt 6 (literal), aprobando la fase 3:**
+> Si
+
+**Respuesta (paráfrasis):** implementa salas y red con servidor autoritativo, predicción e interpolación; corrige una prueba mal escrita por la propia IA y ajusta otras dos tras analizar sus fallos; verifica con dos navegadores independientes.

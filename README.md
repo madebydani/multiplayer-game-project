@@ -4,7 +4,7 @@ Videojuego multijugador online en navegador, 2D top-down, de persecución e infe
 Un jugador empieza como monstruo; cada superviviente capturado se transforma en monstruo.
 Los supervivientes ganan si queda al menos uno cuando se acaba el tiempo.
 
-> **Estado:** fase 2 (prototipo local, un jugador). Aún no hay multijugador. Ver `docs/PROJECT_STATUS.md`.
+> **Estado:** fase 3 (salas y red). Varios jugadores se mueven sincronizados en una sala; aún no hay roles ni infección. Ver `docs/PROJECT_STATUS.md`.
 
 ## Tecnologías
 - Cliente: HTML5, CSS3, JavaScript (ES modules), Phaser 3.
@@ -22,15 +22,23 @@ npm install
 ```bash
 npm start
 ```
-Abrir `http://localhost:3000`. Controles: WASD o flechas. Puerto configurable con la variable `PORT`.
+Abrir `http://localhost:3000`, escribir un nombre y **Crear sala**. Los demás se unen con el código de 4 caracteres. El anfitrión pulsa **Empezar partida** (mínimo 2 jugadores, máximo 6). Controles: WASD o flechas. Puerto configurable con la variable `PORT`.
 
 ## Pruebas
 ```bash
 npm test
 ```
+Prueba en navegador con dos jugadores (con el servidor arrancado; requiere Playwright instalado):
+```bash
+node test/e2e/two-browsers.cjs
+```
 
 ## Jugar en red local (dos ordenadores)
-*Pendiente (fase 3).* Un PC ejecuta el servidor; el otro abre `http://<IP-local>:<puerto>`.
+1. En el ordenador servidor: `npm start`. La consola muestra la dirección para la red local (p. ej. `http://192.168.1.20:3000`).
+2. En el otro ordenador (misma red): abrir esa dirección en el navegador.
+3. Si no conecta, permitir Node.js en el cortafuegos del ordenador servidor.
+
+*Pendiente de verificar con dos ordenadores reales.*
 
 ## Reglas (resumen)
 - 2–6 jugadores por sala; el anfitrión inicia la partida (duración por defecto 5 min).
@@ -41,14 +49,26 @@ npm test
 
 Detalle completo: `docs/HUNTED_SPEC.md` y `docs/DECISIONS.md`.
 
-## Arquitectura prevista
+## Arquitectura
 ```
-server/   Express + Socket.IO: salas, bucle de partida, generación de mapa
-shared/   config.js, collision.js, events.js (usados por cliente y servidor)
-client/   index.html, css/, js/ (escenas Phaser, red), assets/
-test/     node:test y Playwright
-docs/     especificación, requisitos, diario y decisiones
+server/index.js    Express + Socket.IO: conecta los eventos con salas y partidas
+server/rooms.js    salas: códigos, unirse, anfitrión, salir (sin Socket.IO, testeable)
+server/match.js    simulación autoritativa de la partida a 20 ticks/s
+shared/config.js   velocidades, radios, tiempos
+shared/collision.js, movement.js   movimiento y colisiones (cliente y servidor)
+shared/events.js   nombres de los eventos de red
+shared/testMap.js  mapa fijo provisional (se sustituirá en la fase 5)
+client/index.html  menú y sala (HTML) + partida (Phaser)
+client/js/         main.js (pantallas), net.js (Socket.IO), scenes/GameScene.js
+test/              node:test (unidad e integración) y e2e/ (Playwright)
 ```
+
+### Cómo funciona el multijugador
+1. Cada cliente envía 20 veces por segundo solo **qué teclas pulsa** (`input`).
+2. El servidor mueve a cada jugador con las mismas reglas de colisión y envía el **estado** a toda la sala (`state`).
+3. El cliente mueve a su jugador al instante (**predicción**) y lo corrige con el estado del servidor (**reconciliación**).
+4. A los demás jugadores los dibuja 100 ms en el pasado, entre dos estados recibidos (**interpolación**).
+5. El servidor limita cuántas entradas procesa por jugador, así que no se puede ir más rápido enviando más mensajes.
 
 ## Documentación
 | Archivo | Contenido |

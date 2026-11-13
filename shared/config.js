@@ -18,5 +18,17 @@ export const DEFAULT_MATCH_DURATION_MIN = 5;
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
 
+// Red: el cliente envía una entrada cada TICK_MS y el servidor simula
+// a la misma frecuencia (20 veces por segundo).
+export const TICK_MS = 50;
+// Retraso con el que se dibuja a los jugadores remotos (interpolación).
+export const INTERP_DELAY_MS = 100;
+// Máximo de entradas acumuladas por jugador (evita el "speed hack" de
+// enviar más entradas de las permitidas).
+export const MAX_INPUT_CREDIT = 4;
+
+export const NAME_MAX_LENGTH = 16;
+export const ROOM_CODE_LENGTH = 4;
+
 export const MAP_WIDTH = 2400;
 export const MAP_HEIGHT = 1800;
