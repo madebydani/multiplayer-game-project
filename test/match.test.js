@@ -589,3 +589,48 @@ test('rastreo: ignora a los supervivientes ocultos', () => {
   const you = m.personalize(m.step(), 'a').you;
   assert.ok(Math.abs(you.trackAngle - Math.PI / 2) < 1e-9, 'apunta a c (abajo)');
 });
+
+// ---------- Fase 8: estabilidad ----------
+
+test('partida completa de 10 min con 6 jugadores, entradas al azar, habilidades y objetos', () => {
+  const six = Array.from({ length: 6 }, (_, i) => ({ id: `p${i}`, name: `P${i}` }));
+  const m = new Match(generateMap(99), six, { durationMs: 10 * 60000 });
+  let result = null;
+  m.onEnd = (r) => (result = r);
+  const seqs = {};
+  let r = 12345;
+  const rnd = () => ((r = (r * 1103515245 + 12345) % 2147483648) / 2147483648);
+  for (let t = 0; t < ticksFor(10 * 60000) + 5 && !result; t++) {
+    for (const id of m.players.keys()) {
+      seqs[id] = (seqs[id] ?? 0) + 1;
+      m.addInput(id, { seq: seqs[id], x: Math.floor(rnd() * 3) - 1, y: Math.floor(rnd() * 3) - 1, s: rnd() < 0.2 ? 1 : 0 });
+      if (rnd() < 0.01) m.useAbility(id);
+      if (rnd() < 0.01) m.useItem(id, rnd() < 0.5 ? 0 : 1);
+    }
+    m.step();
+  }
+  assert.ok(result, 'la partida termina');
+  assert.ok(['time', 'allCaptured'].includes(result.reason));
+  assert.ok(result.durationMs <= 10 * 60000);
+  assert.equal(result.players.length, 6);
+  // Nadie atraviesa obstáculos ni sale del mapa durante la partida.
+  for (const p of m.roster.values()) {
+    assert.ok(p.x >= PLAYER_RADIUS && p.x <= m.map.width - PLAYER_RADIUS);
+    assert.ok(!m.map.obstacles.some((ob) => overlaps(p.x, p.y, PLAYER_RADIUS - 0.5, ob)), `${p.id} dentro de un obstáculo`);
+  }
+});
+
+test('un error dentro del bucle termina solo esa partida (motivo "error")', async () => {
+  const m = newMatch(players);
+  let result = null;
+  const original = console.error;
+  console.error = () => {}; // silencia el error esperado
+  m.step = () => {
+    throw new Error('fallo simulado');
+  };
+  m.start(() => {}, (r) => (result = r));
+  await new Promise((r) => setTimeout(r, TICK_MS * 3));
+  console.error = original;
+  assert.equal(result?.reason, 'error');
+  assert.equal(m.running, false);
+});

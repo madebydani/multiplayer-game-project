@@ -4,7 +4,7 @@ Videojuego multijugador online en navegador, 2D top-down, de persecución e infe
 Un jugador empieza como monstruo; cada superviviente capturado se transforma en monstruo.
 Los supervivientes ganan si queda al menos uno cuando se acaba el tiempo.
 
-> **Estado:** fase 6. Juego completo con arte integrado (pendiente de revisión del equipo). Ver `docs/PROJECT_STATUS.md`.
+> **Estado:** fase 8 (entrega). Juego completo con mapa procedural, infección, habilidades, objetos y controles táctiles. Arte provisional (bocetos). **Pendiente del equipo:** la prueba con dos ordenadores (`docs/TEST_PLAN.md`). Ver `docs/PROJECT_STATUS.md`.
 
 ## Tecnologías
 - Cliente: HTML5, CSS3, JavaScript (ES modules), Phaser 3.
@@ -54,13 +54,18 @@ node test/e2e/items.mjs
 ```bash
 node test/e2e/touch.mjs
 ```
+Prueba de carga y estabilidad (por defecto 10 salas × 6 jugadores durante 30 s; no necesita Playwright):
+```bash
+npm run test:stress
+```
+Las pruebas manuales que solo puede hacer el equipo (dos ordenadores, móvil real, sonido) están en `docs/TEST_PLAN.md`.
 
 ## Jugar en red local (dos ordenadores)
 1. En el ordenador servidor: `npm start`. La consola muestra la dirección para la red local (p. ej. `http://192.168.1.20:3000`).
 2. En el otro ordenador (misma red): abrir esa dirección en el navegador.
-3. Si no conecta, permitir Node.js en el cortafuegos del ordenador servidor.
+3. Si no conecta, permitir Node.js en el cortafuegos del ordenador servidor y comprobar que ambos están en la misma red (no en una red de invitados que aísle dispositivos).
 
-*Pendiente de verificar con dos ordenadores reales.*
+*Pendiente de verificar con dos ordenadores reales: seguir `docs/TEST_PLAN.md`, sección 1.*
 
 ## Reglas (resumen)
 - 2–6 jugadores por sala; el anfitrión inicia la partida (duración por defecto 5 min).
@@ -68,7 +73,8 @@ node test/e2e/touch.mjs
 - Captura por proximidad (40 px) validada por el servidor; el capturado se transforma.
 - Un monstruo recién transformado no puede capturar durante 3 s.
 - Ganan los monstruos si no queda ningún superviviente; ganan los supervivientes si el tiempo llega a cero.
-- Superviviente = círculo de color; monstruo = estrella roja (translúcida mientras no puede capturar).
+- Superviviente = explorador (●); monstruo = criatura roja con cuernos (★), translúcida mientras no puede capturar. Sin imágenes, se dibujan como círculo y estrella.
+- Sprint, habilidades (señuelo / rastreo) y objetos: ver `docs/GAMEPLAY.md`.
 - Desconexiones: si quedan menos de 2 jugadores o se va el último superviviente, la partida termina por abandono; si se va el único monstruo, un superviviente al azar pasa a ser monstruo.
 - Al terminar se muestra el bando ganador, el motivo, la duración y qué fue de cada jugador. «Volver a la sala» permite jugar otra partida con el mismo grupo.
 
@@ -86,8 +92,11 @@ shared/events.js   nombres de los eventos de red (y qué datos lleva cada uno)
 shared/testMap.js  mapa fijo usado solo por las pruebas automáticas
 client/index.html  menú y sala (HTML) + partida (Phaser)
 client/js/         main.js (pantallas), net.js (Socket.IO), scenes/GameScene.js,
-                   assets.js (imágenes), settings.js (ajustes), sound.js (efectos)
-test/              node:test (unidad e integración) y e2e/ (Playwright)
+                   assets.js (imágenes), settings.js (ajustes), sound.js (efectos),
+                   touch.js (controles táctiles)
+client/assets/     imágenes (bocetos provisionales)
+tools/art/         generador de los bocetos (SVG → PNG)
+test/              node:test (unidad e integración), e2e/ (Playwright), stress.mjs (carga)
 ```
 
 ### Cómo se genera el mapa
@@ -108,7 +117,7 @@ El servidor publica qué imágenes existen (`/assets-manifest.json`) y el juego 
 
 ### Cómo funciona el multijugador
 1. Cada cliente envía 20 veces por segundo solo **qué teclas pulsa** (`input`).
-2. El servidor mueve a cada jugador con las mismas reglas de colisión y envía el **estado** a toda la sala (`state`).
+2. El servidor mueve a cada jugador con las mismas reglas de colisión y envía a cada jugador su **estado** (`state`): una parte común y otra personal. A los monstruos no les llega la posición de los supervivientes ocultos (humo, invisibilidad).
 3. El cliente mueve a su jugador al instante (**predicción**) y lo corrige con el estado del servidor (**reconciliación**).
 4. A los demás jugadores los dibuja 100 ms en el pasado, entre dos estados recibidos (**interpolación**).
 5. El servidor limita cuántas entradas procesa por jugador, así que no se puede ir más rápido enviando más mensajes.
@@ -124,3 +133,7 @@ El servidor publica qué imágenes existen (`/assets-manifest.json`) y el juego 
 | `docs/PROMPT_EVIDENCE.md` | Prompts relevantes y respuestas de la IA |
 | `docs/PROJECT_STATUS.md` | Estado actual y siguiente fase |
 | `docs/ART_STYLE.md` | Criterios de dirección artística |
+| `docs/ASSET_LIST.md` | Lista de imágenes y registro de su creación |
+| `docs/TEST_PLAN.md` | Pruebas manuales para la entrega (dos ordenadores, móvil, sonido) |
+| `docs/PRESENTATION_NOTES.md` | Resumen para la presentación |
+| `docs/evidence/` | Capturas de cada fase |

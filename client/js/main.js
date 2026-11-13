@@ -344,6 +344,7 @@ const REASONS = {
   time: 'Se acabó el tiempo y quedaban supervivientes.',
   allCaptured: 'Todos los supervivientes fueron capturados.',
   abandon: 'Partida terminada por abandono: no quedan jugadores suficientes.',
+  error: 'La partida se interrumpió por un error del servidor. Podéis empezar otra desde la sala.',
 };
 
 function statusText(p) {

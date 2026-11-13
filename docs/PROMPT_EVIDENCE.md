@@ -81,3 +81,8 @@ Los prompts del usuario se citan literalmente cuando son visibles en la sesión.
 **Respuesta (paráfrasis):** marca el arte como provisional, protege las futuras imágenes del equipo frente a sobrescrituras y propone el diseño de la fase 7 para su aprobación.
 
 **Respuestas del usuario al diseño de la fase 7** (preguntas de opción múltiple formuladas por Claude): sprint y habilidades «Sí, tal cual»; objetos «Los 5 objetos»; orden «Mejoras por partes».
+
+**Prompt (literal), aprobando la fase 7 por partes y después la fase 8:**
+> Si
+
+**Respuesta (paráfrasis):** implementa sprint, habilidades, objetos y controles táctiles; en la fase 8, pruebas de carga, robustez ante errores, plan de pruebas manuales, resumen para la presentación y propuesta de reconexión.

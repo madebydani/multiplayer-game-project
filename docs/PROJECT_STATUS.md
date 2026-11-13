@@ -3,25 +3,24 @@
 **Actualizado:** 2026-11-13
 
 ## Estado actual
-- Fases 1–4: completadas (planificación, prototipo, salas y red, núcleo de infección).
-- Fase 5 (mapa procedural): **completada**. Bosque distinto en cada partida (caminos, cabañas, rocas, árboles, arbustos decorativos), validado en el servidor y enviado a todos. 42 pruebas automáticas + prueba con dos navegadores.
-- **Núcleo del MVP terminado:** dos navegadores, una sala, movimiento sincronizado, infección, victoria y mapa aleatorio.
-- Pendiente de verificar por el equipo: **dos ordenadores** en LAN; partida con 3+ jugadores reales; equilibrio (velocidades, densidad del bosque, posición de los puntos de aparición).
+- Fases 1–7: completadas (planificación, prototipo, salas y red, infección, mapa procedural, arte e interfaz, mejoras).
+- Fase 8 (entrega): **preparada por Claude Code**. Pruebas de carga y robustez, plan de pruebas manuales, README final, requisitos actualizados y resumen para la presentación.
+- Pruebas: 73 automáticas + 4 guiones de navegador + prueba de carga, todas en verde.
 
-## Fase 6 — Arte e interfaz (casi terminada)
-- Hecho: estilo aprobado; 14 imágenes dibujadas con código por Claude Code (cambio de reparto, D31) e integradas; Ajustes, Créditos, minimapa, indicador de conexión, sonidos sintetizados.
-- 44 pruebas automáticas + 2 pruebas de navegador en verde con el arte integrado.
-- **Pendiente del equipo:** revisar el arte (`docs/evidence/fase6-arte-*.png` o jugando) y dar los nombres para Créditos.
-- Pendiente de verificar: sonido en un ordenador real; latencia en un ordenador normal; dos ordenadores en LAN.
+## Pendiente del equipo (imprescindible para la entrega)
+1. **Prueba con dos ordenadores en red local** → `docs/TEST_PLAN.md`, sección 1. Anotar el resultado (también si algo falla).
+2. Exportar las conversaciones de Claude Code y ChatGPT como evidencia literal.
+3. Nombres del equipo para Créditos (`client/index.html`, comentario «EDITAR»).
 
-## Fase 7 — Mejoras (en curso)
-- 7a Sprint, 7b Habilidades, 7c Objetos y controles táctiles: **completados** (diseño en `docs/GAMEPLAY.md`). Los controles táctiles solo se han probado en emulación: **falta probarlos en móviles reales**.
+## Pendiente del equipo (recomendable)
+- Sonido, accesibilidad con teclado y móvil real (`TEST_PLAN.md`, secciones 3 y 4).
+- Sensaciones de juego para ajustar `shared/config.js` (`TEST_PLAN.md`, sección 5).
+- Arte definitivo con ChatGPT (opcional; sustituir los PNG de `client/assets/`).
 
-## Siguiente
-- Fase 7 — Mejoras opcionales: power-ups, habilidades, inventario, versión móvil. Antes, definir la tabla de controles (D9) y cada habilidad (efecto, duración, recarga, cómo se muestra).
-- Fase 8 — Entrega: prueba con dos ordenadores, estabilidad, README, diario y material para la presentación.
+## Decisiones abiertas
+- **D42 — Reconexión:** propuesta (20 s para volver con el mismo personaje) o dejarla como limitación documentada.
 
 ## Notas para retomar en una sesión nueva
-- Especificación: `docs/HUNTED_SPEC.md`. Decisiones: `docs/DECISIONS.md`.
+- Especificación: `docs/HUNTED_SPEC.md`. Decisiones: `docs/DECISIONS.md`. Mecánicas: `docs/GAMEPLAY.md`.
 - Trabajar una fase por vez y esperar aprobación.
 - La skill `hypercasual-game-developer` no estaba disponible en la sesión inicial.

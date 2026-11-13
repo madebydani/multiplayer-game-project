@@ -184,5 +184,21 @@
 - Decisión: los menús se pueden desplazar; solo la partida es fija a pantalla completa. Además, menús compactos en pantallas bajas.
 - Comprobado: todos los botones del menú son alcanzables en 4 dispositivos emulados, sin desplazamiento horizontal.
 
+### D42 — Política de reconexión (2026-11-13, fase 8) — PROPUESTA pendiente de aprobación
+- Pendiente desde la fase 1: §4 pedía proponerla «sin bloquear el MVP». La IA no la propuso hasta la revisión de la especificación en la fase 8.
+- Situación actual: si se corta la conexión, el jugador sale de la partida en el acto (como al cerrar la pestaña).
+- Propuesta:
+  1. Al crear o unirse a una sala, el servidor da un **código de sesión** secreto que el navegador guarda (`sessionStorage`).
+  2. Si alguien se desconecta **durante una partida**, su personaje se queda quieto en el mapa durante **20 s** (se le puede capturar) y los demás ven «reconectando…».
+  3. Si vuelve en ese tiempo con el mismo código de sesión, recupera su personaje, rol, objetos y lugar en el resultado.
+  4. Si no vuelve, se aplica la regla actual de abandono.
+  5. En la sala de espera no cambia nada: salir es salir.
+- Alternativa más simple: no reconectar (como ahora) y documentarlo como limitación.
+- Riesgo: más estados posibles (desconectado temporalmente) que probar; ~1 día de trabajo con pruebas.
+
+### D43 — Error en el bucle de partida: termina solo esa partida (2026-11-13, fase 8)
+- Antes, un error inesperado dentro del tick habría tumbado el proceso de Node y todas las salas.
+- Ahora se registra, la partida termina con motivo «error» y se avisa a sus jugadores; el resto sigue. Probado simulando un fallo.
+
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
 - `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

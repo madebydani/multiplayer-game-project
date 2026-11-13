@@ -182,8 +182,16 @@ export class Match {
   start(onTick, onEnd = () => {}) {
     this.onEnd = onEnd;
     this.timer = setInterval(() => {
-      const snapshot = this.step();
-      if (!this.result) onTick(snapshot);
+      // Si algo falla en un tick, se registra y termina SOLO esta partida:
+      // un error no debe tumbar el servidor ni las demás salas.
+      try {
+        const snapshot = this.step();
+        if (!this.result) onTick(snapshot);
+      } catch (err) {
+        console.error('Error en el bucle de la partida:', err);
+        if (!this.result) this.finish(null, 'error');
+        else this.stop();
+      }
     }, TICK_MS);
   }
 
@@ -372,7 +380,7 @@ export class Match {
     this.stop();
     this.result = {
       winner, // 'survivors' | 'monsters' | null (abandono)
-      reason, // 'time' | 'allCaptured' | 'abandon'
+      reason, // 'time' | 'allCaptured' | 'abandon' | 'error'
       durationMs: this.elapsedMs,
       players: [...this.roster.values()].map((p) => ({
         id: p.id,

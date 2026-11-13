@@ -162,3 +162,15 @@
 - Comprobado automáticamente (EMULACIÓN, no dispositivos reales): los controles aparecen solo en táctil; el joystick mueve al jugador (109–195 px en ~0,8 s) y vuelve a 0 al soltar; el botón de habilidad funciona (rastreo y señuelo); el aviso de girar aparece solo en vertical; menús alcanzables en iPhone 13 (horizontal y vertical), Galaxy S9+ e iPad Mini; sin errores. Las pruebas de escritorio y las 71 automáticas siguen pasando.
 - **Pendiente:** probar en móviles y tabletas reales (iOS y Android) antes de afirmar compatibilidad.
 - Evidencia: `docs/evidence/fase7-movil-*.png`.
+
+### 2026-11-13 — Fase 8: entrega (estabilidad, pruebas y documentación)
+- Objetivo: preparar la entrega (prompt literal: «Si»).
+- Herramienta: Claude Code (sesión en la nube).
+- Creado: `test/stress.mjs` (`npm run test:stress`), `docs/TEST_PLAN.md` (pruebas manuales para el equipo), `docs/PRESENTATION_NOTES.md` (resumen para la exposición). Modificado: `server/match.js` (error en el bucle controlado), `client/js/main.js` (motivo «error»), `test/match.test.js`, `package.json`, `README.md`, `docs/REQUIREMENTS.md`.
+- Decisiones: D42 (reconexión, propuesta), D43 (error controlado).
+- Revisión de la especificación: la IA vio que no había propuesto la política de reconexión de §4; se propone ahora (D42) sin implementarla.
+- Comprobado automáticamente:
+  - 73 pruebas `node:test` (nuevas: partida completa de 10 min con 6 jugadores al azar sin atravesar obstáculos ni salir del mapa; error simulado que termina solo esa partida).
+  - Carga: 60 conexiones durante 30 s y 180 conexiones durante 2 min. Ritmo de estados el esperado; retraso máximo del bucle 7–12 ms; memoria al final de 24–27 MB, sin crecer con la duración; salas abandonadas terminadas y notificadas; 0 salas y 0 jugadores al final; entradas basura sin efecto; sin errores de conexión.
+  - Los bots corrían en el mismo proceso que el servidor, así que es una medida conservadora.
+- Pendiente del equipo: prueba con dos ordenadores, móvil real y sonido (`TEST_PLAN.md`); nombres para Créditos; exportar las conversaciones; decidir D42.
