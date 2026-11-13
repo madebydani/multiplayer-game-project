@@ -39,6 +39,7 @@ export const sfx = {
     tone(300, 90, 0.6, 'square', 0.05, 0.08);
   },
   newMonster: () => tone(150, 300, 0.4, 'square', 0, 0.12),
+  ability: () => tone(300, 900, 0.18, 'triangle', 0, 0.15),
   tick: () => tone(880, 880, 0.06, 'square', 0, 0.08),
   win: () => [392, 494, 587, 784].forEach((f, i) => tone(f, f, 0.2, 'triangle', i * 0.13)),
   lose: () => [392, 330, 262, 196].forEach((f, i) => tone(f, f, 0.25, 'triangle', i * 0.16)),

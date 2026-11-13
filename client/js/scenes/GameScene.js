@@ -47,6 +47,8 @@ export class GameScene extends Phaser.Scene {
     this.initialPlayers = data.players;
     this.onStateCallback = data.onState ?? (() => {});
     this.onLocalUpdate = data.onLocal ?? (() => {}); // cada fotograma, con mi estado predicho
+    this.onAbility = data.onAbility ?? (() => {}); // al pulsar Espacio
+    this.looks = new Map(data.players.map((p) => [p.id, p])); // nombre y color de cada jugador
   }
 
   preload() {
@@ -86,13 +88,21 @@ export class GameScene extends Phaser.Scene {
 
     const mine = this.sprites.get(this.myId);
     mine.container.setDepth(20);
-    // Margen por arriba: así el HUD no tapa al jugador cuando está en el borde superior.
-    const hudMargin = 110;
-    this.cameras.main.setBounds(0, -hudMargin, this.map.width, this.map.height + hudMargin);
+    // Márgenes: así el HUD (arriba) y los avisos (abajo) no tapan al jugador
+    // cuando está en el borde del mapa.
+    const top = 150;
+    const bottom = 80;
+    this.cameras.main.setBounds(0, -top, this.map.width, this.map.height + top + bottom);
     this.cameras.main.startFollow(mine.container, true, 0.2, 0.2);
 
-    this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,LEFT,DOWN,RIGHT,SHIFT');
+    // SPACE se captura para que no "pulse" un botón de la página que tenga el foco.
+    this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,LEFT,DOWN,RIGHT,SHIFT,SPACE');
     this.input.keyboard.on('keydown-M', () => this.toggleMinimap());
+    this.input.keyboard.on('keydown-SPACE', () => this.onAbility());
+
+    this.decoySprites = new Map(); // id del señuelo → dibujo
+    this.trackAngle = null;
+    this.trackArrow = this.add.triangle(0, 0, 0, -14, 0, 14, 28, 0, 0xffe082).setStrokeStyle(3, 0x000000).setDepth(25).setVisible(false);
 
     this.createMinimap();
 
@@ -107,6 +117,13 @@ export class GameScene extends Phaser.Scene {
   // ---------- Jugadores ----------
 
   addPlayerSprite(p) {
+    const sprite = this.makeCharacter(p);
+    this.sprites.set(p.id, sprite);
+    this.setRole(sprite, p.role, false);
+  }
+
+  /** Crea el dibujo de un personaje (jugador o señuelo) sin guardarlo. */
+  makeCharacter(p) {
     // Sombra y anillo de color: no giran, van bajo el cuerpo.
     const shadow = this.add.ellipse(3, 6, PLAYER_RADIUS * 2.2, PLAYER_RADIUS * 1.4, 0x000000, 0.35);
     const ring = this.add.circle(0, 0, PLAYER_RADIUS + 5).setStrokeStyle(3, p.color, 0.9);
@@ -133,8 +150,7 @@ export class GameScene extends Phaser.Scene {
       name: p.name,
       isMe: p.id === this.myId,
     };
-    this.sprites.set(p.id, sprite);
-    this.setRole(sprite, p.role, false);
+    return sprite;
   }
 
   /** Dibuja el cuerpo según el rol: imagen si existe; si no, círculo o estrella. */
@@ -162,7 +178,7 @@ export class GameScene extends Phaser.Scene {
     sprite.baseScale = sprite.body.scaleX;
     sprite.body.setRotation(sprite.angle);
     sprite.container.addAt(sprite.body, 2); // encima de sombra y anillo
-    sprite.label.setText(`${role === 'monster' ? '★' : '●'} ${sprite.name}${sprite.isMe ? ' (tú)' : ''}`);
+    sprite.label.setText(sprite.labelText ?? `${role === 'monster' ? '★' : '●'} ${sprite.name}${sprite.isMe ? ' (tú)' : ''}`);
 
     if (animate && !settings.reduceMotion) {
       // Efecto de transformación: destello y "rebote" de tamaño.
@@ -217,7 +233,8 @@ export class GameScene extends Phaser.Scene {
         const a = path.points[i];
         const b = path.points[i + 1];
         g.lineBetween(a.x, a.y, b.x, b.y);
-        g.fillCircle(b.x, b.y, path.width / 2);
+        // Unión redondeada en los codos (no en el último punto, que está en el borde del mapa).
+        if (i < path.points.length - 2) g.fillCircle(b.x, b.y, path.width / 2);
       }
     }
 
@@ -364,6 +381,7 @@ export class GameScene extends Phaser.Scene {
       sprite.body.setAlpha(p.role === 'monster' && p.cooldownMs > 0 ? 0.5 : 1);
     }
     this.onStateCallback(state);
+    this.trackAngle = state.you?.trackAngle ?? null;
 
     const mine = state.players.find((p) => p.id === this.myId);
     if (!mine) return;
@@ -410,6 +428,16 @@ export class GameScene extends Phaser.Scene {
     this.setDirection(mine, this.me.dx, this.me.dy, this.moving, time, this.me.sprinting);
     this.onLocalUpdate(this.me);
 
+    // Flecha de rastreo (solo la recibe el monstruo que usa la habilidad).
+    if (this.trackAngle !== null) {
+      this.trackArrow
+        .setVisible(true)
+        .setPosition(mine.container.x + Math.cos(this.trackAngle) * 60, mine.container.y + Math.sin(this.trackAngle) * 60)
+        .setRotation(this.trackAngle);
+    } else {
+      this.trackArrow.setVisible(false);
+    }
+
     this.renderRemotes(time);
     this.drawMinimap();
   }
@@ -448,6 +476,42 @@ export class GameScene extends Phaser.Scene {
     // Jugadores que ya no están (desconectados): se ocultan.
     for (const [id, sprite] of this.sprites) {
       if (id !== this.myId) sprite.container.setVisible(present.has(id));
+    }
+
+    this.renderDecoys(older, newer, a, time);
+  }
+
+  /**
+   * Señuelos: para los monstruos son idénticos a su dueño; para los
+   * supervivientes (y el dueño) se ven translúcidos con la etiqueta «señuelo».
+   */
+  renderDecoys(older, newer, a, time) {
+    const iAmMonster = this.me.role === 'monster';
+    const alive = new Set();
+    for (const d of newer.decoys ?? []) {
+      alive.add(d.id);
+      let sprite = this.decoySprites.get(d.id);
+      if (!sprite) {
+        const look = this.looks.get(d.owner) ?? { name: '?', color: 0xffffff };
+        sprite = this.makeCharacter({ id: d.id, name: look.name, color: look.color, x: d.x, y: d.y });
+        if (!iAmMonster) sprite.labelText = `● señuelo de ${look.name}`;
+        this.setRole(sprite, 'survivor', false);
+        sprite.container.setAlpha(iAmMonster ? 1 : 0.5);
+        this.decoySprites.set(d.id, sprite);
+      }
+      const o = (older.decoys ?? []).find((q) => q.id === d.id) ?? d;
+      sprite.container.setPosition(o.x + (d.x - o.x) * a, o.y + (d.y - o.y) * a);
+      this.setDirection(sprite, d.dx, d.dy, true, time);
+    }
+    for (const [id, sprite] of this.decoySprites) {
+      if (alive.has(id)) continue;
+      this.decoySprites.delete(id);
+      if (!settings.reduceMotion) {
+        // "Puf": se desvanece creciendo.
+        this.tweens.add({ targets: sprite.container, alpha: 0, scale: 1.6, duration: 300, onComplete: () => sprite.container.destroy() });
+      } else {
+        sprite.container.destroy();
+      }
     }
   }
 }

@@ -127,3 +127,17 @@
 - Comprobado automáticamente: 51 pruebas (7 nuevas: ×1,4, duración de 2 s, umbral del 25 %, recarga en 6 s, sin gasto quieto o congelado, valores no válidos rechazados, no se supera la velocidad enviando más mensajes). Playwright: la barra baja al ritmo previsto, «agotado» y recuperación correctos; **0 px de corrección** entre predicción y servidor; sin errores de consola.
 - Pendiente: sensación de juego con jugadores reales (¿2 s de sprint son pocos o muchos?).
 - Evidencia: `docs/evidence/fase7a-sprint.png`.
+
+### 2026-11-13 — Fase 7b: habilidades propias (señuelo y rastreo)
+- Objetivo: habilidad con Espacio según `docs/GAMEPLAY.md` (aprobado).
+- Herramienta: Claude Code (sesión en la nube).
+- Modificado: `server/match.js` (`useAbility`, señuelos, rastreo, `personalize`, al transformarse se pierde el señuelo), `server/index.js` (estado personal por jugador, evento `ability` con motivo de rechazo), `shared/config.js`, `shared/events.js`, `client/js/scenes/GameScene.js` (señuelos según el bando de quien mira, flecha de rastreo, captura de Espacio), `client/js/main.js` (HUD de la habilidad con texto, aviso si no se puede usar), `client/js/sound.js`, pruebas.
+- Decisiones: D34 (estado personal), D35 (limitación conocida del señuelo).
+- Incidencias:
+  1. El HUD creció a tres líneas y, con el aviso inferior, tapaba al jugador en los bordes del mapa → más margen de cámara arriba y abajo.
+  2. Al verse el exterior del mapa, el final redondeado de los caminos sobresalía → recortado.
+  3. La flecha de rastreo era demasiado pequeña en la captura → agrandada.
+  4. Prevención: Espacio podía «pulsar» un botón de la página con el foco → se captura en Phaser y se quita el foco al empezar la partida.
+- Comprobado automáticamente: 59 pruebas (8 nuevas: señuelo, no capturable, recarga, rastreo solo para el monstruo, congelado, pérdida al transformarse, desconexión del dueño, estado personal por red). Playwright con 2 navegadores: el monstruo ve el señuelo idéntico al dueño y el superviviente lo ve translúcido con etiqueta; desaparece a los 4 s; la flecha apunta al superviviente (−0,79 rad, igual que el esperado) y el superviviente no la ve; avisos y HUD correctos; sin errores. Las pruebas de navegador anteriores siguen pasando.
+- Pendiente: equilibrio con jugadores reales.
+- Evidencia: `docs/evidence/fase7b-*.png`.

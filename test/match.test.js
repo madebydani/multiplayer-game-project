@@ -341,3 +341,98 @@ test('sprint: ni enviando muchas entradas se supera la velocidad de sprint', () 
   const max = SPEED.survivor * SPRINT_MULTIPLIER * dt * (ticks + MAX_INPUT_CREDIT);
   assert.ok(b.x - 300 <= max + 1e-6);
 });
+
+// ---------- Fase 7b: habilidades propias ----------
+import { ABILITY } from '../shared/config.js';
+
+const afterFreeze = (list = three) => {
+  const m = newMatch(list); // monstruo inicial: "a"
+  run(m, ticksFor(MONSTER_START_FREEZE_MS));
+  return m;
+};
+
+test('señuelo: aparece en tu posición y anda en tu dirección, choca y caduca a los 4 s', () => {
+  const m = afterFreeze();
+  place(m, 'a', 2200, 300);
+  const b = place(m, 'b', 300);
+  b.dx = 1;
+  b.dy = 0;
+  assert.equal(m.useAbility('b'), null);
+  const snap = m.step();
+  assert.equal(snap.decoys.length, 1);
+  const d = snap.decoys[0];
+  assert.equal(d.owner, 'b');
+  assert.ok(Math.abs(d.x - (300 + SPEED.survivor * (TICK_MS / 1000))) < 0.01);
+  assert.equal(b.x, 300); // el jugador real no se ha movido
+  run(m, ticksFor(ABILITY.survivor.durationMs) - 2);
+  assert.equal(m.decoys.size, 1);
+  const end = m.step();
+  assert.equal(m.decoys.size, 0);
+  assert.ok(end.events.some((e) => e.type === 'decoyEnd' && e.id === d.id));
+});
+
+test('señuelo: no se puede capturar', () => {
+  const m = afterFreeze();
+  place(m, 'b', 300);
+  place(m, 'c', 2000, 1500);
+  m.players.get('b').dx = 0;
+  m.players.get('b').dy = 0; // señuelo quieto
+  m.useAbility('b');
+  place(m, 'b', 1000, 1500); // el jugador real se va lejos
+  place(m, 'a', 300); // el monstruo encima del señuelo
+  const snap = m.step();
+  assert.equal(m.players.get('b').role, 'survivor');
+  assert.ok(!snap.events.some((e) => e.type === 'capture'));
+});
+
+test('habilidad: recarga de 15 s; antes devuelve un mensaje de espera', () => {
+  const m = afterFreeze();
+  assert.equal(m.useAbility('b'), null);
+  run(m, 10);
+  assert.match(m.useAbility('b'), /Señuelo: espera \d+ s/);
+  run(m, ticksFor(ABILITY.survivor.cooldownMs) - 10);
+  assert.equal(m.useAbility('b'), null);
+});
+
+test('rastreo: solo el monstruo que lo usa recibe la dirección al más cercano', () => {
+  const m = afterFreeze();
+  place(m, 'a', 1000, 900);
+  place(m, 'b', 1300, 900); // a la derecha, a 300 px
+  place(m, 'c', 1000, 1500); // abajo, a 600 px
+  assert.equal(m.useAbility('a'), null);
+  const snap = m.step();
+  const forMonster = m.personalize(snap, 'a');
+  const forSurvivor = m.personalize(snap, 'b');
+  assert.ok(Math.abs(forMonster.you.trackAngle - 0) < 1e-9, 'apunta a la derecha');
+  assert.equal(forSurvivor.you.trackAngle, null);
+  assert.ok(forMonster.you.abilityActiveMs > 0);
+  run(m, ticksFor(ABILITY.monster.durationMs));
+  assert.equal(m.personalize(m.snapshot(), 'a').you.trackAngle, null);
+});
+
+test('habilidad: el monstruo inicial no la puede usar congelado', () => {
+  const m = newMatch();
+  m.step();
+  assert.match(m.useAbility('a'), /Todavía no/);
+});
+
+test('al ser capturado se pierde el señuelo y la habilidad pasa a rastreo con espera', () => {
+  const m = afterFreeze();
+  place(m, 'c', 2000, 1500);
+  const b = place(m, 'b', 300);
+  m.useAbility('b');
+  place(m, 'a', 300);
+  const snap = m.step();
+  assert.equal(b.role, 'monster');
+  assert.equal(m.decoys.size, 0);
+  assert.ok(snap.events.some((e) => e.type === 'decoyEnd'));
+  assert.match(m.useAbility('b'), /Rastreo: espera/);
+});
+
+test('el señuelo desaparece si su dueño se desconecta', () => {
+  const m = afterFreeze();
+  m.useAbility('b');
+  m.removePlayer('b');
+  m.step();
+  assert.equal(m.decoys.size, 0);
+});

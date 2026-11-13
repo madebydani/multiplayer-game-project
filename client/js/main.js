@@ -1,6 +1,6 @@
 // Flujo de pantallas: menú → sala → partida → resultados.
 import { EV } from '/shared/events.js';
-import { SPRINT_ENERGY_MS } from '/shared/config.js';
+import { SPRINT_ENERGY_MS, ABILITY } from '/shared/config.js';
 import { socket, request } from './net.js';
 import { GameScene } from './scenes/GameScene.js';
 import { settings } from './settings.js';
@@ -186,7 +186,16 @@ socket.on(EV.GAME_STARTED, async (data) => {
     // Delta real entre fotogramas (ver docs/DECISIONS.md, D12).
     fps: { smoothStep: false },
   });
-  game.scene.add('Game', GameScene, true, { ...data, myId, socket, onState: updateHud, onLocal: updateEnergy });
+  // Que ningún botón de la página conserve el foco (Espacio lo "pulsaría").
+  document.activeElement?.blur();
+  game.scene.add('Game', GameScene, true, {
+    ...data,
+    myId,
+    socket,
+    onState: updateHud,
+    onLocal: updateEnergy,
+    onAbility: useAbility,
+  });
   window.__hunted = game; // acceso para pruebas automáticas
   updateHud({ timeLeftMs: data.durationMs, survivors: data.players.length - 1, events: [], players: data.players });
 });
@@ -221,6 +230,30 @@ function updateEnergy(me) {
   $('energy-text').textContent = me.exhausted ? 'agotado' : `${pct} %`;
 }
 
+/** Espacio: pide al servidor usar la habilidad; si no se puede, explica por qué. */
+async function useAbility() {
+  const res = await request(EV.ABILITY);
+  if (res.ok) sfx.ability();
+  else toast(res.error);
+}
+
+/** Estado de la habilidad propia en el HUD (texto + color, no solo color). */
+function updateAbility(role, you) {
+  if (!role || !you) return;
+  const name = ABILITY[role].name;
+  const el = $('hud-ability');
+  if (you.abilityActiveMs > 0) {
+    el.textContent = `${name}: activo ${Math.ceil(you.abilityActiveMs / 1000)} s`;
+    el.className = 'ability active';
+  } else if (you.abilityReadyMs > 0) {
+    el.textContent = `${name}: ${Math.ceil(you.abilityReadyMs / 1000)} s`;
+    el.className = 'ability';
+  } else {
+    el.textContent = `${name}: lista (Espacio)`;
+    el.className = 'ability ready';
+  }
+}
+
 /** Actualiza el HUD (HTML) con cada estado del servidor. */
 function updateHud(state) {
   const me = state.players.find((p) => p.id === myId);
@@ -235,6 +268,8 @@ function updateHud(state) {
     lastTickSecond = second;
     sfx.tick();
   }
+
+  updateAbility(me?.role, state.you);
 
   if (me) {
     const monster = me.role === 'monster';

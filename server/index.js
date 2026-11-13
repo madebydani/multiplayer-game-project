@@ -111,7 +111,10 @@ export function createHuntedServer() {
         io.to(room.code).emit(EV.GAME_STARTED, match.initialView());
         sendRoom(room);
         match.start(
-          (snapshot) => io.to(room.code).emit(EV.STATE, snapshot),
+          // Cada jugador recibe su propio estado (parte común + datos personales).
+          (snapshot) => {
+            for (const id of match.players.keys()) io.to(id).emit(EV.STATE, match.personalize(snapshot, id));
+          },
           (result) => {
             if (room.match === match) endMatch(room, result);
           },
@@ -123,6 +126,16 @@ export function createHuntedServer() {
       EV.SET_DURATION,
       handle(({ minutes }) => {
         sendRoom(rooms.setDuration(socket.id, minutes));
+      }),
+    );
+
+    socket.on(
+      EV.ABILITY,
+      handle(() => {
+        const match = rooms.roomOf(socket.id)?.match;
+        if (!match) throw new RoomError('No hay ninguna partida en curso.');
+        const error = match.useAbility(socket.id);
+        if (error) throw new RoomError(error);
       }),
     );
 

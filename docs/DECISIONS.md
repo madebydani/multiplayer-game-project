@@ -148,5 +148,15 @@
 - Detalle: el servidor envía la energía sin redondear. Redondearla haría que el cliente reconciliara desde un valor distinto y podría agotarse un tick antes o después que en el servidor, con pequeños tirones.
 - Comprobado en navegador: corrección máxima entre predicción y servidor durante 2 s de sprint = 0 px.
 
+### D34 — Estado personal por jugador (2026-11-13, fase 7b)
+- Decisión: el servidor calcula una vez la parte común del estado y envía a cada jugador una copia con `you` (su recarga y, si es monstruo rastreando, la dirección). Antes se enviaba el mismo estado a toda la sala.
+- Motivo: el rastreo solo debe verlo quien lo usa. En la 7c servirá también para no enviar a los monstruos la posición de los ocultos.
+- Coste: un mensaje por jugador en lugar de uno por sala (máx. 6 por tick); asumible.
+
+### D35 — Señuelo: indistinguible en pantalla, no en los datos (2026-11-13, fase 7b)
+- Decisión: el señuelo viaja en `decoys` con su propio id y el campo `owner`. El cliente del monstruo lo dibuja idéntico al dueño; el del superviviente, translúcido y con la etiqueta «señuelo».
+- Limitación conocida: alguien que inspeccione los mensajes de red podría distinguirlo. Ocultarlo del todo exigiría identificadores aleatorios para todos los jugadores en cada partida. Se acepta para un proyecto académico; no afecta a quién gana (el señuelo no captura ni puede ser capturado).
+- Contraste: la invisibilidad y el humo (7c) sí se ocultarán en los datos, porque ahí la información es decisiva.
+
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
 - `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

@@ -13,8 +13,10 @@ import {
   MONSTER_START_FREEZE_MS,
   DEFAULT_MATCH_DURATION_MIN,
   MIN_PLAYERS,
+  ABILITY,
+  SPEED,
 } from '../shared/config.js';
-import { overlaps } from '../shared/collision.js';
+import { overlaps, moveCircle } from '../shared/collision.js';
 import { applyInput, initialSprint } from '../shared/movement.js';
 
 // Colores de los placeholders: uno por plaza (máx. 6).
@@ -35,6 +37,8 @@ export class Match {
     this.result = null; // se rellena al terminar
     this.onEnd = () => {};
     this.events = []; // capturas, etc. pendientes de enviar con el próximo estado
+    this.decoys = new Map(); // ownerId → señuelo activo
+    this.decoyCounter = 0;
 
     this.players = new Map(); // jugadores conectados que siguen en la simulación
     this.roster = new Map(); // TODOS los que empezaron (para el resultado final)
@@ -63,6 +67,9 @@ export class Match {
         credit: MAX_INPUT_CREDIT,
         lastSeq: 0,
         ...initialSprint(),
+        // Habilidad propia: el monstruo inicial no puede usarla hasta que se descongela.
+        abilityReadyAtMs: isMonster ? MONSTER_START_FREEZE_MS : 0,
+        abilityUntilMs: 0,
       };
       this.players.set(p.id, player);
       this.roster.set(p.id, player);
@@ -104,6 +111,66 @@ export class Match {
     return true;
   }
 
+  /**
+   * Activa la habilidad propia del rol (Espacio). Devuelve un mensaje de error
+   * o null si se activó. El servidor decide si se puede usar.
+   */
+  useAbility(playerId) {
+    const p = this.players.get(playerId);
+    if (!p || this.result) return 'La partida no está en curso.';
+    const now = this.elapsedMs;
+    if (p.frozen) return 'Todavía no puedes moverte.';
+    if (now < p.abilityReadyAtMs) return `${ABILITY[p.role].name}: espera ${Math.ceil((p.abilityReadyAtMs - now) / 1000)} s.`;
+    const { durationMs, cooldownMs } = ABILITY[p.role];
+    p.abilityUntilMs = now + durationMs;
+    p.abilityReadyAtMs = now + cooldownMs;
+    if (p.role === 'survivor') {
+      // Señuelo: copia que sigue andando en la dirección en la que mira el jugador.
+      this.decoys.set(p.id, {
+        id: `d${++this.decoyCounter}`,
+        owner: p.id,
+        x: p.x,
+        y: p.y,
+        dx: p.dx,
+        dy: p.dy,
+        untilMs: p.abilityUntilMs,
+      });
+    }
+    this.events.push({ type: 'ability', id: p.id, role: p.role });
+    return null;
+  }
+
+  /** Mueve los señuelos y elimina los que han caducado. */
+  updateDecoys(now, dt) {
+    for (const [owner, d] of this.decoys) {
+      if (now >= d.untilMs || !this.players.has(owner)) {
+        this.decoys.delete(owner);
+        this.events.push({ type: 'decoyEnd', id: d.id });
+        continue;
+      }
+      const len = Math.hypot(d.dx, d.dy) || 1;
+      const dist = SPEED.survivor * dt;
+      const next = moveCircle(d.x, d.y, PLAYER_RADIUS, (d.dx / len) * dist, (d.dy / len) * dist, this.map.obstacles, this.map);
+      d.x = next.x;
+      d.y = next.y;
+    }
+  }
+
+  /** Dirección (ángulo) hacia el superviviente más cercano, o null si no hay. */
+  trackAngle(m) {
+    let best = null;
+    let bestDist = Infinity;
+    for (const s of this.players.values()) {
+      if (s.role !== 'survivor') continue;
+      const d = Math.hypot(s.x - m.x, s.y - m.y);
+      if (d < bestDist) {
+        bestDist = d;
+        best = s;
+      }
+    }
+    return best ? Math.atan2(best.y - m.y, best.x - m.x) : null;
+  }
+
   /** Un paso de simulación: movimiento, capturas y fin de partida. */
   step() {
     if (this.result) return this.snapshot();
@@ -121,6 +188,7 @@ export class Match {
       }
     }
 
+    this.updateDecoys(now, dt);
     this.checkCaptures(now);
     this.checkEnd();
     const snapshot = this.snapshot();
@@ -138,6 +206,7 @@ export class Match {
         s.transformedAtMs = now;
         s.capturedBy = m.name;
         s.canCaptureAtMs = now + CAPTURE_COOLDOWN_MS; // sin capturas encadenadas
+        this.becameMonster(s, now);
         this.events.push({ type: 'capture', victim: s.id, by: m.id });
       }
     }
@@ -178,8 +247,20 @@ export class Match {
       chosen.reassigned = true;
       chosen.transformedAtMs = this.elapsedMs;
       chosen.canCaptureAtMs = this.elapsedMs + CAPTURE_COOLDOWN_MS;
+      this.becameMonster(chosen, this.elapsedMs);
       this.events.push({ type: 'newMonster', id: chosen.id });
     }
+  }
+
+  /** Al pasar a monstruo: pierde su señuelo y su habilidad se reinicia. */
+  becameMonster(p, now) {
+    const d = this.decoys.get(p.id);
+    if (d) {
+      this.decoys.delete(p.id);
+      this.events.push({ type: 'decoyEnd', id: d.id });
+    }
+    p.abilityUntilMs = 0;
+    p.abilityReadyAtMs = now + CAPTURE_COOLDOWN_MS;
   }
 
   finish(winner, reason) {
@@ -230,6 +311,27 @@ export class Match {
         exhausted: p.exhausted,
         sprinting: p.sprinting,
       })),
+      // Los señuelos llevan su propio id; `owner` dice a quién imitan.
+      decoys: [...this.decoys.values()].map((d) => ({ id: d.id, owner: d.owner, x: round(d.x), y: round(d.y), dx: d.dx, dy: d.dy })),
+    };
+  }
+
+  /**
+   * Estado para UN jugador: la parte común más `you`, con lo que solo él debe
+   * saber (recarga de su habilidad y, si es monstruo rastreando, la dirección).
+   */
+  personalize(snapshot, playerId) {
+    const p = this.players.get(playerId);
+    if (!p) return snapshot;
+    const now = this.elapsedMs;
+    const active = now < p.abilityUntilMs;
+    return {
+      ...snapshot,
+      you: {
+        abilityReadyMs: Math.max(0, p.abilityReadyAtMs - now),
+        abilityActiveMs: active ? p.abilityUntilMs - now : 0,
+        trackAngle: active && p.role === 'monster' ? this.trackAngle(p) : null,
+      },
     };
   }
 

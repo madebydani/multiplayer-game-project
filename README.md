@@ -28,6 +28,7 @@ Abrir `http://localhost:3000`, escribir un nombre y **Crear sala**. Los demás s
 |---|---|
 | WASD o flechas | Moverse |
 | Shift | Sprint (barra de energía en el HUD) |
+| Espacio | Habilidad: señuelo (superviviente) o rastreo (monstruo) |
 | M | Mostrar u ocultar el minimapa |
 
 En **Ajustes** se regula el volumen y se pueden reducir las animaciones (por defecto sigue la preferencia del sistema operativo).

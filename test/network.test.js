@@ -155,3 +155,30 @@ test('ping: el servidor responde al instante', async () => {
   await c.timeout(2000).emitWithAck(EV.PING);
   assert.ok(Date.now() - t0 < 500);
 });
+
+test('habilidades por red: estado personal y respuesta del servidor', async () => {
+  const a = client();
+  const b = client();
+  const r = await ask(a, EV.CREATE_ROOM, { name: 'Ana' });
+  await ask(b, EV.JOIN_ROOM, { code: r.code, name: 'Bea' });
+  const started = once(a, EV.GAME_STARTED);
+  await ask(a, EV.START_GAME);
+  const start = await started;
+  const monsterId = start.players.find((p) => p.role === 'monster').id;
+  const [mon, surv] = monsterId === r.you ? [a, b] : [b, a];
+
+  // El monstruo está congelado: el servidor rechaza la habilidad con un motivo.
+  const denied = await ask(mon, EV.ABILITY);
+  assert.equal(denied.ok, false);
+  assert.match(denied.error, /Todavía no/);
+
+  // El superviviente lanza un señuelo: ambos lo ven en el estado.
+  assert.equal((await ask(surv, EV.ABILITY)).ok, true);
+  const [sm, ss] = await Promise.all([once(mon, EV.STATE), once(surv, EV.STATE)]);
+  assert.equal(sm.decoys.length, 1);
+  assert.equal(ss.decoys.length, 1);
+  // Cada uno recibe SU parte personal.
+  assert.ok(ss.you.abilityActiveMs > 0);
+  assert.equal(sm.you.abilityActiveMs, 0);
+  assert.equal(sm.you.trackAngle, null);
+});
