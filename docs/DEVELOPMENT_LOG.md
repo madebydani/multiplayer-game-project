@@ -69,3 +69,11 @@
 - Pendiente de verificar: sensación de juego en el bosque (densidad, tamaño) con jugadores reales; dos ordenadores en LAN.
 - Evidencia: `docs/evidence/fase5-tres-mapas.png` (3 semillas), `docs/evidence/fase5-mapa-A.png`.
 - Siguiente: fase 6, arte e interfaz (requiere los assets de ChatGPT).
+
+### 2026-11-13 — Fase 6 (inicio): especificación de arte
+- Objetivo: preparar lo necesario para generar el arte con ChatGPT. El usuario eligió la opción A (prompt literal: «La A»).
+- Herramienta: Claude Code (sesión en la nube). No se ha generado ninguna imagen.
+- Creado/actualizado: `docs/ART_STYLE.md` (propuesta de estilo, paleta, escala, animación), `docs/ASSET_LIST.md` (16 recursos en 3 prioridades, con tamaño, transparencia, vista, anclaje, estado y borrador de prompt para cada uno; tabla de registro para documentar la generación).
+- Decisión: D25 (propuesta pendiente de aprobación).
+- Pruebas: no aplica (solo documentación).
+- Siguiente: el equipo revisa la propuesta y genera los recursos de prioridad 1; mientras, se puede hacer la opción B (interfaz sin arte).

@@ -50,3 +50,10 @@ Los prompts del usuario se citan literalmente cuando son visibles en la sesión.
 > Si
 
 **Respuesta (paráfrasis):** implementa el generador procedural en el servidor con validación por BFS; mide el porcentaje de mapas válidos con distintos huecos mínimos y elige 52 px; añade pruebas con 200 semillas; corrige dos errores en la prueba de navegador; genera una imagen con tres mapas como evidencia.
+
+**Respuesta de Claude tras la fase 5 (paráfrasis):** propone dos caminos para la fase 6: A) especificar el arte primero o B) pulir la interfaz sin arte; recomienda A.
+
+**Prompt 9 (literal):**
+> La A
+
+**Respuesta (paráfrasis):** redacta la propuesta de estilo y la lista de recursos con prompts para ChatGPT, marcadas como pendientes de aprobación.

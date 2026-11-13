@@ -8,14 +8,10 @@
 - **Núcleo del MVP terminado:** dos navegadores, una sala, movimiento sincronizado, infección, victoria y mapa aleatorio.
 - Pendiente de verificar por el equipo: **dos ordenadores** en LAN; partida con 3+ jugadores reales; equilibrio (velocidades, densidad del bosque, posición de los puntos de aparición).
 
-## Siguiente fase (pendiente de autorización)
-**Fase 6 — Arte e interfaz:** necesita decisiones y recursos del equipo:
-1. Definir el estilo en `docs/ART_STYLE.md` (paleta, tamaño base de personajes y tiles, fotogramas).
-2. Crear `docs/ASSET_LIST.md` con cada recurso necesario (nombre, tamaño, transparencia, perspectiva, animaciones, estado).
-3. Generar las imágenes con ChatGPT y pasarlas al repositorio.
-4. Claude Code las integra y pule menús, HUD, efectos y accesibilidad (volumen, reducir animaciones).
-
-Alternativa: hacer antes el pulido de interfaz que no depende de arte (pantalla de créditos, ajustes, minimapa, indicadores de conexión).
+## Fase 6 — Arte e interfaz (en curso)
+- Hecho: propuesta de estilo (`ART_STYLE.md`) y lista de 16 recursos con prompts (`ASSET_LIST.md`). **Pendiente de aprobación del equipo.**
+- Siguiente paso del equipo: aprobar o ajustar el estilo, generar con ChatGPT los recursos de prioridad 1 (superviviente y monstruo), subirlos a `client/assets/` y rellenar el registro de `ASSET_LIST.md`.
+- Mientras tanto, Claude Code puede (con autorización): preparar la carga de imágenes con respaldo automático a los placeholders si falta alguna, y hacer la opción B (créditos, ajustes de volumen y de reducir animaciones, minimapa, indicador de conexión).
 
 ## Notas para retomar en una sesión nueva
 - Especificación: `docs/HUNTED_SPEC.md`. Decisiones: `docs/DECISIONS.md`.
