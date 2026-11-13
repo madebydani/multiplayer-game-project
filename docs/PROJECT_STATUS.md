@@ -8,12 +8,15 @@
 - **Núcleo del MVP terminado:** dos navegadores, una sala, movimiento sincronizado, infección, victoria y mapa aleatorio.
 - Pendiente de verificar por el equipo: **dos ordenadores** en LAN; partida con 3+ jugadores reales; equilibrio (velocidades, densidad del bosque, posición de los puntos de aparición).
 
-## Fase 6 — Arte e interfaz (en curso)
-- Hecho: estilo aprobado (`ART_STYLE.md`) y lista de 16 recursos con prompts (`ASSET_LIST.md`).
-- Hecho: el juego carga las imágenes de `client/assets/` en cuanto existen (respaldo a placeholders), rota a los personajes, añade sombra, anillo de color y balanceo.
-- Hecho: Ajustes (volumen, reducir animaciones), Créditos, minimapa (M), indicador de conexión, sonidos sintetizados. 44 pruebas automáticas + 2 pruebas de navegador.
-- **Equipo:** generar con ChatGPT los recursos (prioridad 1: `survivor.png`, `monster.png`), subirlos y rellenar el registro de `ASSET_LIST.md`; facilitar los nombres para Créditos.
-- Claude Code, al recibir cada imagen: comprobar escala, rotación y legibilidad, ajustar `FILL` si hace falta y marcarla como integrada/probada.
+## Fase 6 — Arte e interfaz (casi terminada)
+- Hecho: estilo aprobado; 14 imágenes dibujadas con código por Claude Code (cambio de reparto, D31) e integradas; Ajustes, Créditos, minimapa, indicador de conexión, sonidos sintetizados.
+- 44 pruebas automáticas + 2 pruebas de navegador en verde con el arte integrado.
+- **Pendiente del equipo:** revisar el arte (`docs/evidence/fase6-arte-*.png` o jugando) y dar los nombres para Créditos.
+- Pendiente de verificar: sonido en un ordenador real; latencia en un ordenador normal; dos ordenadores en LAN.
+
+## Siguiente (pendiente de autorización)
+- Fase 7 — Mejoras opcionales: power-ups, habilidades, inventario, versión móvil. Antes, definir la tabla de controles (D9) y cada habilidad (efecto, duración, recarga, cómo se muestra).
+- Fase 8 — Entrega: prueba con dos ordenadores, estabilidad, README, diario y material para la presentación.
 
 ## Notas para retomar en una sesión nueva
 - Especificación: `docs/HUNTED_SPEC.md`. Decisiones: `docs/DECISIONS.md`.

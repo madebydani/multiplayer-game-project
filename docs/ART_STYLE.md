@@ -1,7 +1,7 @@
 # Dirección artística
 
 > **Estado: APROBADO por el equipo** (2026-11-13), con un cambio respecto a la propuesta inicial: vista cenital pura en lugar de 3/4. Redactado por Claude Code a partir de los criterios de la especificación (§7) y las respuestas del equipo.
-> Los recursos finales se generan con ChatGPT y herramientas de imagen, bajo revisión humana. Claude Code solo los integra.
+> **Cambio de reparto (2026-11-13, decisión del equipo):** el arte ya no se genera con ChatGPT; lo dibuja Claude Code con código vectorial (SVG → PNG) en `tools/art/build-art.cjs`, siguiendo este estilo. Ver `DECISIONS.md`, D31.
 
 ## Criterios fijados por la especificación (§7)
 - Bosque misterioso pero agradable.

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="384" viewBox="0 0 1024 384"><defs><linearGradient id="txt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF8E7"/><stop offset="1" stop-color="#F3E9D2"/>
+    </linearGradient></defs>
+    <!-- rama decorativa -->
+    <path d="M120,300 Q512,350 904,300" fill="none" stroke="#5A3820" stroke-width="10" stroke-linecap="round"/>
+    <path d="M0,0 Q18,-14 36,0 Q18,14 0,0 Z" fill="#3F7A45" stroke="#0D1410" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" transform="translate(180 306) rotate(-30)"/><path d="M0,0 Q18,-14 36,0 Q18,14 0,0 Z" fill="#2F5A35" stroke="#0D1410" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" transform="translate(300 322) rotate(20)"/><path d="M0,0 Q18,-14 36,0 Q18,14 0,0 Z" fill="#2F5A35" stroke="#0D1410" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" transform="translate(700 322) rotate(160)"/><path d="M0,0 Q18,-14 36,0 Q18,14 0,0 Z" fill="#3F7A45" stroke="#0D1410" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" transform="translate(840 306) rotate(210)"/>
+    <path d="M0,0 Q18,-14 36,0 Q18,14 0,0 Z" fill="#5D9C59" stroke="#0D1410" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" transform="translate(500 336) rotate(70)"/>
+    <!-- texto -->
+    <text x="512" y="250" text-anchor="middle" font-family="Inter Display Black, Inter, DejaVu Sans, sans-serif" font-weight="900" font-size="210" letter-spacing="14"
+      fill="url(#txt)" stroke="#0D1410" stroke-width="14" paint-order="stroke" stroke-linejoin="round">HUNTED</text>
+    <!-- marcas de garra sobre la U -->
+    <g stroke="#E53935" stroke-width="12" stroke-linecap="round">
+      <line x1="282" y1="96" x2="326" y2="232"/>
+      <line x1="312" y1="92" x2="356" y2="228"/>
+      <line x1="342" y1="96" x2="384" y2="224"/>
+    </g>
+    <!-- ojos en la oscuridad -->
+    <ellipse cx="930" cy="48" rx="11" ry="7" fill="#FFE082"/><ellipse cx="962" cy="48" rx="11" ry="7" fill="#FFE082"/>
+  </svg>

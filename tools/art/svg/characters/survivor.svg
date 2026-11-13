@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><defs><radialGradient id="beam" cx="0" cy="0.5" r="1">
+      <stop offset="0" stop-color="#FFE082" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#FFE082" stop-opacity="0"/>
+    </radialGradient></defs>
+    <!-- haz de la linterna (hacia delante) -->
+    <polygon points="196,150 252,122 252,200" fill="url(#beam)"/>
+    <!-- mochila (a la espalda = izquierda) -->
+    <rect x="52" y="92" width="52" height="72" rx="16" fill="#9A6A40" stroke="#0D1410" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+    <rect x="60" y="104" width="22" height="48" rx="8" fill="#7A4E2D"/>
+    <line x1="96" y1="96" x2="120" y2="92" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <line x1="96" y1="160" x2="120" y2="164" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- brazos -->
+    <ellipse cx="150" cy="78" rx="26" ry="15" fill="#F3E9D2" stroke="#0D1410" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" transform="rotate(-20 150 78)"/>
+    <ellipse cx="156" cy="176" rx="30" ry="15" fill="#F3E9D2" stroke="#0D1410" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" transform="rotate(18 156 176)"/>
+    <!-- manos -->
+    <circle cx="176" cy="72" r="11" fill="#F2C7A0" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- linterna en la mano derecha -->
+    <rect x="172" y="146" width="30" height="16" rx="4" fill="#5E6368" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <rect x="198" y="143" width="8" height="22" rx="3" fill="#FFE082" stroke="#0D1410" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="180" cy="168" r="11" fill="#F2C7A0" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- hombros / cuerpo -->
+    <ellipse cx="128" cy="128" rx="44" ry="58" fill="#F3E9D2" stroke="#0D1410" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- bufanda azul alrededor del cuello -->
+    <path d="M150,92 Q170,128 150,164" fill="none" stroke="#4FC3F7" stroke-width="14" stroke-linecap="round"/>
+    <path d="M150,92 Q170,128 150,164" fill="none" stroke="#0D1410" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.5"/>
+    <!-- cabeza: cara por delante (derecha) -->
+    <circle cx="150" cy="128" r="32" fill="#F2C7A0" stroke="#0D1410" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="170" cy="115" r="4.5" fill="#0D1410"/>
+    <circle cx="170" cy="141" r="4.5" fill="#0D1410"/>
+    <ellipse cx="180" cy="128" rx="4" ry="5" fill="#E8A87C"/>
+    <!-- gorro de lana: cubre la parte de atrás de la cabeza -->
+    <circle cx="126" cy="128" r="31" fill="#4FC3F7" stroke="#0D1410" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+    <g stroke="#2B8FC0" stroke-width="4" stroke-linecap="round">
+      <line x1="130" y1="128" x2="152" y2="110"/><line x1="130" y1="128" x2="155" y2="128"/><line x1="130" y1="128" x2="152" y2="146"/>
+      <line x1="122" y1="128" x2="118" y2="100"/><line x1="122" y1="128" x2="118" y2="156"/><line x1="120" y1="128" x2="98" y2="128"/>
+    </g>
+    <path d="M148,104 Q160,128 148,152" fill="none" stroke="#F3E9D2" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="120" cy="128" r="12" fill="#F3E9D2" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>

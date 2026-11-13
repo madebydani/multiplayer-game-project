@@ -98,6 +98,7 @@ button:focus-visible, input:focus-visible {
 
 #code {
   flex: 1;
+  min-width: 0; /* sin esto el campo no encoge y empuja «Unirse» fuera del panel */
   text-transform: uppercase;
   letter-spacing: 0.3em;
 }

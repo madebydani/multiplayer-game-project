@@ -97,3 +97,18 @@
 - Comprobado automáticamente: 44 pruebas `node:test` (nuevas: lista de imágenes y ping). Playwright sin imágenes: ajustes que persisten al recargar, créditos, minimapa y tecla M, indicador de conexión, limpieza al terminar, partida completa. Playwright con 5 imágenes de PRUEBA dibujadas por código (luego borradas): se usan las existentes y placeholders para las demás, rotación correcta, iconos en HUD y resultados, el servidor detecta imágenes nuevas sin reiniciar. Sin errores de consola.
 - No comprobado: que los sonidos se oigan bien (el navegador de pruebas no tiene salida de audio); arte real (aún no recibido); nombres del equipo en créditos (pendiente).
 - Evidencia: `docs/evidence/fase6-ajustes.png`, `fase6-partida-placeholders.png`, `fase6-imagenes-prueba.png` (imágenes de prueba, no arte final).
+
+### 2026-11-13 — Fase 6: arte generado por Claude Code
+- Petición (literal): «Quiero que cuando acabes todos los placeholders y tengas listo todo, generes tu las imágenes porque ChatGPT no sabe interpretar bien las peticiones.»
+- Cambio de reparto respecto a la especificación (§7): ver D31. La IA aclaró que no tiene un generador de imágenes y que dibujaría con código vectorial.
+- Herramienta: Claude Code (sesión en la nube); SVG escrito a mano en `tools/art/build-art.cjs`, convertido a PNG con Chromium (Playwright).
+- Creado: 14 PNG en `client/assets/` (personajes, 3 árboles, 2 rocas, 2 arbustos, cabaña, suelo, logo, 2 iconos) y sus SVG en `tools/art/svg/`.
+- Iteraciones y fallos:
+  1. Hoja de revisión: el superviviente parecía una diana u ojo (anillos concéntricos) y la cara no se veía. Redibujado.
+  2. Los ojos del logo parecían una diéresis sobre la D; las garras quedaban entre la U y la N. Corregido.
+  3. La partida con arte reveló dos fallos de interfaz ANTERIORES al arte: el HUD tapaba al jugador en el borde superior del mapa (se añadió margen a la cámara) y el botón «Unirse» se salía del panel del menú (desde la fase 3; no se vio en las capturas de entonces). Corregidos.
+  4. La cabaña ocupa todo su rectángulo de colisión, así que su sombra se dibuja por código.
+- Comprobado automáticamente: 44 pruebas `node:test`; `test/e2e/two-browsers.cjs` y `test/e2e/ui.cjs` con el arte integrado, sin errores de consola.
+- Comprobado visualmente por la IA (capturas): legibilidad de los personajes a 64 px y 96 px, giro en partida, menú, partida y resultados.
+- Pendiente: revisión y aprobación del arte por el equipo; nombres para Créditos.
+- Evidencia: `docs/evidence/fase6-arte-hoja.png`, `fase6-arte-partida.png`, `fase6-arte-menu.png`, `fase6-arte-resultados.png`.

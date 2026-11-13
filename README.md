@@ -4,7 +4,7 @@ Videojuego multijugador online en navegador, 2D top-down, de persecución e infe
 Un jugador empieza como monstruo; cada superviviente capturado se transforma en monstruo.
 Los supervivientes ganan si queda al menos uno cuando se acaba el tiempo.
 
-> **Estado:** fase 6 en curso. Juego completo con placeholders; preparado para cargar el arte definitivo en cuanto esté en `client/assets/`. Ver `docs/PROJECT_STATUS.md`.
+> **Estado:** fase 6. Juego completo con arte integrado (pendiente de revisión del equipo). Ver `docs/PROJECT_STATUS.md`.
 
 ## Tecnologías
 - Cliente: HTML5, CSS3, JavaScript (ES modules), Phaser 3.
@@ -86,7 +86,11 @@ test/              node:test (unidad e integración) y e2e/ (Playwright)
 5. Envía a los clientes la **lista final** de obstáculos (no solo la semilla), así todos ven exactamente lo mismo.
 
 ### Arte e imágenes
-Las imágenes definitivas van en `client/assets/` con los nombres de `docs/ASSET_LIST.md`. El servidor publica qué archivos existen (`/assets-manifest.json`) y el juego usa los que encuentre; lo que falte se dibuja con formas geométricas provisionales. Se pueden añadir de una en una: basta con recargar la página.
+Las ilustraciones están dibujadas con código vectorial en `tools/art/build-art.cjs` (fuentes SVG en `tools/art/svg/`) y exportadas a PNG en `client/assets/`. Para regenerarlas tras cambiar un dibujo (requiere Playwright):
+```bash
+node tools/art/build-art.cjs
+```
+El servidor publica qué imágenes existen (`/assets-manifest.json`) y el juego usa las que encuentre; si falta alguna, la dibuja con formas geométricas provisionales.
 
 ### Cómo funciona el multijugador
 1. Cada cliente envía 20 veces por segundo solo **qué teclas pulsa** (`input`).

@@ -76,7 +76,9 @@ export class GameScene extends Phaser.Scene {
 
     const mine = this.sprites.get(this.myId);
     mine.container.setDepth(20);
-    this.cameras.main.setBounds(0, 0, this.map.width, this.map.height);
+    // Margen por arriba: así el HUD no tapa al jugador cuando está en el borde superior.
+    const hudMargin = 110;
+    this.cameras.main.setBounds(0, -hudMargin, this.map.width, this.map.height + hudMargin);
     this.cameras.main.startFollow(mine.container, true, 0.2, 0.2);
 
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,LEFT,DOWN,RIGHT');
@@ -246,6 +248,8 @@ export class GameScene extends Phaser.Scene {
         }
       } else if (ob.shape === 'rect') {
         if (has('cabin')) {
+          // La imagen ocupa todo el rectángulo de colisión: la sombra va aparte.
+          this.add.rectangle(ob.x + 10, ob.y + 12, ob.w, ob.h, 0x000000, 0.3).setOrigin(0);
           this.add.image(ob.x, ob.y, 'cabin').setOrigin(0).setDisplaySize(ob.w, ob.h);
         } else {
           // Cabaña vista desde arriba: tejado a dos aguas.

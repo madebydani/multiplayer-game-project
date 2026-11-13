@@ -69,3 +69,8 @@ Los prompts del usuario se citan literalmente cuando son visibles en la sesión.
 > Si, ves haciendo y le pido a chatgpt que las vaya creando.
 
 **Respuesta (paráfrasis):** prepara la carga de imágenes con respaldo a placeholders, rotación y efectos por código, ajustes, créditos, minimapa, indicador de conexión y sonidos sintetizados; lo verifica con imágenes de prueba temporales.
+
+**Prompt 12 (literal):**
+> Quiero que cuando acabes todos los placeholders y tengas listo todo, generes tu las imágenes porque ChatGPT no sabe interpretar bien las peticiones.
+
+**Respuesta (paráfrasis):** acepta el cambio de reparto y aclara que no tiene un generador de imágenes, sino que dibujará con código SVG. Genera 14 recursos, los revisa en una hoja de contactos, redibuja el superviviente y retoca el logo; al probarlos en partida detecta y corrige dos fallos de interfaz anteriores.

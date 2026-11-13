@@ -1,7 +1,7 @@
 # Lista de recursos gráficos
 
 Estados: `pendiente` → `recibido` → `integrado` → `probado`.
-Herramienta prevista: ChatGPT (generación de imágenes), con revisión del equipo. Registrar aquí, al recibir cada archivo: herramienta y fecha, nº de iteraciones aproximado, criterio humano para elegirlo y cualquier retoque manual.
+Herramienta prevista inicialmente: ChatGPT. **Cambio del 2026-11-13 (D31):** el equipo pidió que Claude Code generase las imágenes porque ChatGPT no interpretaba bien las peticiones. Se dibujaron con código SVG en `tools/art/build-art.cjs` (fuentes en `tools/art/svg/`) y se convirtieron a PNG con Chromium. Los prompts de abajo se conservan como especificación de cada recurso.
 
 > **Estilo:** ver `docs/ART_STYLE.md` (aprobado el 2026-11-13: vista cenital pura, animación por código). Si el estilo cambia, ajustar los prompts antes de generar.
 
@@ -27,8 +27,8 @@ Herramienta prevista: ChatGPT (generación de imágenes), con revisión del equi
 
 | Archivo | Propósito | Tamaño | Transp. | Vista / anclaje | Fotogramas | Estado |
 |---|---|---|---|---|---|---|
-| `client/assets/characters/survivor.png` | Superviviente | 256×256 | Sí | Cenital, orientado a la derecha; centro del cuerpo en el centro del lienzo (el juego rota alrededor de ese punto); sin sombra | 1 | pendiente |
-| `client/assets/characters/monster.png` | Monstruo | 256×256 | Sí | Igual que el superviviente | 1 | pendiente |
+| `client/assets/characters/survivor.png` | Superviviente | 256×256 | Sí | Cenital, orientado a la derecha; centro del cuerpo en el centro del lienzo (el juego rota alrededor de ese punto); sin sombra | 1 | probado |
+| `client/assets/characters/monster.png` | Monstruo | 256×256 | Sí | Igual que el superviviente | 1 | probado |
 
 **Prompt superviviente:**
 > Personaje superviviente visto desde justo encima: explorador joven y pequeño, formas redondeadas. Se ven la parte superior de un gorro de lana con pompón, los hombros, una mochila en la espalda y los dos brazos; una mano sostiene una linterna que apunta hacia la derecha con un pequeño haz de luz. El frente de la cabeza mira a la derecha. Ropa crema #F3E9D2 con detalles azules #4FC3F7. Sin sombra en el suelo. Centrado, ocupa unos 2/3 del lienzo de 256×256.
@@ -40,11 +40,11 @@ Herramienta prevista: ChatGPT (generación de imágenes), con revisión del equi
 
 | Archivo | Propósito | Tamaño | Transp. | Notas de integración | Estado |
 |---|---|---|---|---|---|
-| `client/assets/environment/tree_1.png` … `tree_3.png` | 3 variantes de árbol | 256×256 | Sí | La copa redonda debe llenar ~80 % del lienzo: el juego la escala al radio de colisión | pendiente |
-| `client/assets/environment/rock_1.png`, `rock_2.png` | 2 rocas | 128×128 | Sí | Forma casi redonda (la colisión es un círculo) | pendiente |
-| `client/assets/environment/bush_1.png`, `bush_2.png` | Arbustos decorativos | 128×128 | Sí | Sin colisión; más claros que los árboles | pendiente |
-| `client/assets/environment/cabin.png` | Cabaña vista desde arriba | 448×320 | Sí | Rectangular (proporción ~1,4:1); el juego la estira al tamaño de cada cabaña | pendiente |
-| `client/assets/environment/ground.png` | Suelo del bosque | 256×256 | **No** | **Debe repetirse sin costuras** (mosaico) | pendiente |
+| `client/assets/environment/tree_1.png` … `tree_3.png` | 3 variantes de árbol | 256×256 | Sí | La copa redonda debe llenar ~80 % del lienzo: el juego la escala al radio de colisión | probado |
+| `client/assets/environment/rock_1.png`, `rock_2.png` | 2 rocas | 128×128 | Sí | Forma casi redonda (la colisión es un círculo) | probado |
+| `client/assets/environment/bush_1.png`, `bush_2.png` | Arbustos decorativos | 128×128 | Sí | Sin colisión; más claros que los árboles | probado |
+| `client/assets/environment/cabin.png` | Cabaña vista desde arriba | 448×320 | Sí | Rectangular (proporción ~1,4:1); el juego la estira al tamaño de cada cabaña | probado |
+| `client/assets/environment/ground.png` | Suelo del bosque | 256×256 | **No** | **Debe repetirse sin costuras** (mosaico) | probado |
 
 **Prompts del bosque** (añadir tras el prompt base):
 - Árbol: «Árbol visto desde justo encima: copa redonda y frondosa de pino o roble, tonos #2F5A35 y #5D9C59, ligero brillo de luna, sombra suave hacia abajo a la derecha. Que no se vea el suelo alrededor. Variante 1 de 3: (redondeada / con forma de estrella de ramas / más oscura con musgo).»
@@ -57,9 +57,9 @@ Herramienta prevista: ChatGPT (generación de imágenes), con revisión del equi
 
 | Archivo | Propósito | Tamaño | Transp. | Estado |
 |---|---|---|---|---|
-| `client/assets/ui/logo.png` | Logo «HUNTED» del menú | 1024×384 | Sí | pendiente |
-| `client/assets/ui/icon_survivor.png` | Icono de rol en el HUD y en los resultados | 128×128 | Sí | pendiente |
-| `client/assets/ui/icon_monster.png` | Ídem para el monstruo | 128×128 | Sí | pendiente |
+| `client/assets/ui/logo.png` | Logo «HUNTED» del menú | 1024×384 | Sí | probado |
+| `client/assets/ui/icon_survivor.png` | Icono de rol en el HUD y en los resultados | 128×128 | Sí | probado |
+| `client/assets/ui/icon_monster.png` | Ídem para el monstruo | 128×128 | Sí | probado |
 
 **Prompts de interfaz:**
 - Logo: «Logotipo de texto "HUNTED" para un juego de persecución en el bosque: letras gruesas y legibles en crema #F3E9D2 con contorno #0D1410, unas marcas de garra en la letra U y ramas o hojas decorativas. Comprueba que el texto diga exactamente HUNTED.»
@@ -72,4 +72,13 @@ Herramienta prevista: ChatGPT (generación de imágenes), con revisión del equi
 ## Registro de recursos recibidos
 | Fecha | Archivo | Herramienta | Iteraciones | Criterio de elección | Retoques | Estado |
 |---|---|---|---|---|---|---|
-| — | — | — | — | — | — | — |
+| 2026-11-13 | `characters/survivor.png` | Claude Code (SVG) | 2 | 1.ª versión rechazada por la IA al revisarla: gorro con anillos concéntricos y tira azul parecían una diana; la cara apenas asomaba | Gorro desplazado atrás, costuras radiales, bufanda, ojos visibles | probado |
+| 2026-11-13 | `characters/monster.png` | Claude Code (SVG) | 1 | Silueta ancha con cuernos, púas y garras, distinta del superviviente también a 64 px | — | probado |
+| 2026-11-13 | `environment/tree_1..3.png` | Claude Code (SVG) | 1 | Tres siluetas distintas (frondoso, pino estrellado, musgoso) | — | probado |
+| 2026-11-13 | `environment/rock_1..2.png`, `bush_1..2.png` | Claude Code (SVG) | 1 | Formas casi redondas como su colisión | — | probado |
+| 2026-11-13 | `environment/cabin.png` | Claude Code (SVG) | 1 | Ocupa todo el lienzo porque se estira al rectángulo de colisión | Sombra añadida por código, no en la imagen | probado |
+| 2026-11-13 | `environment/ground.png` | Claude Code (SVG) | 1 | Mosaico sin costuras (cada detalle repetido a ±256 px), bajo contraste | — | probado |
+| 2026-11-13 | `ui/logo.png` | Claude Code (SVG, fuente Inter, licencia OFL) | 3 | Legible, con marcas de garra | Ojos movidos (parecían una diéresis sobre la D); garras centradas en la U | probado |
+| 2026-11-13 | `ui/icon_survivor.png`, `icon_monster.png` | Claude Code (SVG) | 1 | Caras de frente, legibles a 32 px | — | probado |
+
+**Pendiente:** revisión del equipo. Si algo no os gusta, se cambia su función en `tools/art/build-art.cjs` y se ejecuta `node tools/art/build-art.cjs`.

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><defs><filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="8"/></filter></defs>
+    <circle cx="138" cy="140" r="100" fill="#000" opacity="0.35" filter="url(#sh)"/>
+    <circle cx="190.0" cy="128.0" r="39.1" fill="#2F5A35" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="175.5" cy="167.9" r="39.2" fill="#2F5A35" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="138.8" cy="189.1" r="39.6" fill="#2F5A35" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="97.0" cy="181.7" r="39.5" fill="#2F5A35" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="69.7" cy="149.2" r="41.1" fill="#2F5A35" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="69.7" cy="106.8" r="39.2" fill="#2F5A35" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="97.0" cy="74.3" r="36.5" fill="#2F5A35" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="138.8" cy="66.9" r="39.2" fill="#2F5A35" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="175.5" cy="88.1" r="39.6" fill="#2F5A35" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="128" cy="128" r="70" fill="#2F5A35"/>
+    <circle cx="112" cy="108" r="44" fill="#3F7A45"/>
+    <circle cx="100" cy="92" r="22" fill="#5D9C59"/>
+    <circle cx="150" cy="96" r="12" fill="#5D9C59" opacity="0.8"/>
+    <circle cx="90" cy="140" r="10" fill="#5D9C59" opacity="0.7"/>
+  </svg>

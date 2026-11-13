@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs><filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter></defs>
+    <polygon points="119.1,70.0 114.4,103.7 83.6,118.0 50.3,124.3 22.6,103.0 12.2,70.0 26.2,39.6 50.1,14.8 83.6,22.1 112.7,37.5" fill="#000" opacity="0.35" filter="url(#sh)"/>
+    <polygon points="115.1,64.0 110.4,97.7 79.6,112.0 46.3,118.3 18.6,97.0 8.2,64.0 22.2,33.6 46.1,8.8 79.6,16.1 108.7,31.5" fill="#7D8288" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <polygon points="85.5,52.0 75.7,73.7 54.0,80.4 30.5,75.5 25.6,52.0 31.6,29.6 54.0,20.9 74.5,31.5" fill="#A3A9AF"/>
+    <path d="M70,82 l14,10 M60,92 l6,-12" stroke="#5E6368" stroke-width="3" stroke-linecap="round"/>
+    
+  </svg>

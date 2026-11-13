@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><defs><filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="8"/></filter></defs>
+    <circle cx="138" cy="140" r="96" fill="#000" opacity="0.35" filter="url(#sh)"/>
+    <polygon points="230.0,128.0 187.0,147.2 210.5,188.0 164.4,178.2 159.5,225.0 128.0,190.0 96.5,225.0 91.6,178.2 45.5,188.0 69.0,147.2 26.0,128.0 69.0,108.8 45.5,68.0 91.6,77.8 96.5,31.0 128.0,66.0 159.5,31.0 164.4,77.8 210.5,68.0 187.0,108.8" fill="#24452A" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <polygon points="202.5,151.1 164.6,155.8 170.3,193.6 138.2,172.9 118.2,205.4 107.0,168.9 70.8,181.0 85.6,145.8 50.1,131.8 84.1,114.4 65.9,80.9 103.1,89.3 110.7,51.9 133.8,82.4 163.6,58.6 161.7,96.7 199.9,97.8 173.9,125.7" fill="#2F5A35" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <polygon points="179.7,133.2 154.4,142.2 160.9,168.3 136.7,156.7 122.8,179.7 113.8,154.4 87.7,160.9 99.3,136.7 76.3,122.8 101.6,113.8 95.1,87.7 119.3,99.3 133.2,76.3 142.2,101.6 168.3,95.1 156.7,119.3" fill="#3F7A45" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <polygon points="151.9,138.1 136.4,139.2 131.2,153.8 122.5,140.9 107.3,143.7 114.1,129.7 104.1,117.9 119.6,116.8 124.8,102.2 133.5,115.1 148.7,112.3 141.9,126.3" fill="#5D9C59" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="128" cy="128" r="6" fill="#5A3820"/>
+  </svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><defs><radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFE082" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFE082" stop-opacity="0"/>
+    </radialGradient></defs>
+    <!-- brazos con garras -->
+    <ellipse cx="150" cy="52" rx="36" ry="20" fill="#E53935" stroke="#0D1410" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" transform="rotate(-15 150 52)"/>
+    <ellipse cx="150" cy="204" rx="36" ry="20" fill="#E53935" stroke="#0D1410" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" transform="rotate(15 150 204)"/>
+    <path d="M186,36 q14,-2 22,-5" fill="none" stroke="#F3E9D2" stroke-width="5" stroke-linecap="round"/><path d="M186,46 q14,-2 22,0" fill="none" stroke="#F3E9D2" stroke-width="5" stroke-linecap="round"/><path d="M186,56 q14,-2 22,5" fill="none" stroke="#F3E9D2" stroke-width="5" stroke-linecap="round"/>
+    <path d="M186,200 q14,2 22,-5" fill="none" stroke="#F3E9D2" stroke-width="5" stroke-linecap="round"/><path d="M186,210 q14,2 22,0" fill="none" stroke="#F3E9D2" stroke-width="5" stroke-linecap="round"/><path d="M186,220 q14,2 22,5" fill="none" stroke="#F3E9D2" stroke-width="5" stroke-linecap="round"/>
+    <!-- cuerpo ancho -->
+    <ellipse cx="114" cy="128" rx="78" ry="70" fill="#E53935" stroke="#0D1410" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="96" cy="128" rx="46" ry="40" fill="#B71C1C" opacity="0.55"/>
+    <polygon points="38,128 52,104 66,128 52,152" fill="#4A148C" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><polygon points="64,128 78,104 92,128 78,152" fill="#4A148C" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><polygon points="90,128 104,104 118,128 104,152" fill="#4A148C" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- cuernos curvados hacia delante -->
+    <path d="M168,104 Q196,64 236,72 Q206,82 186,114 Z" fill="#F3E9D2" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M168,152 Q196,192 236,184 Q206,174 186,142 Z" fill="#F3E9D2" stroke="#0D1410" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- cabeza -->
+    <circle cx="172" cy="128" r="36" fill="#E53935" stroke="#0D1410" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="162" cy="128" r="22" fill="#4A148C" opacity="0.35"/>
+    <!-- ojos brillantes -->
+    <circle cx="196" cy="112" r="18" fill="url(#glow)"/>
+    <circle cx="196" cy="144" r="18" fill="url(#glow)"/>
+    <ellipse cx="196" cy="112" rx="9" ry="8" fill="#FFE082" stroke="#0D1410" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <ellipse cx="196" cy="144" rx="9" ry="8" fill="#FFE082" stroke="#0D1410" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <rect x="197" y="106" width="3" height="12" rx="1.5" fill="#0D1410"/>
+    <rect x="197" y="138" width="3" height="12" rx="1.5" fill="#0D1410"/>
+  </svg>
