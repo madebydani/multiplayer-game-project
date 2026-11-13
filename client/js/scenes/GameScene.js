@@ -49,6 +49,7 @@ export class GameScene extends Phaser.Scene {
     this.onLocalUpdate = data.onLocal ?? (() => {}); // cada fotograma, con mi estado predicho
     this.onAbility = data.onAbility ?? (() => {}); // al pulsar Espacio
     this.onUseItem = data.onUseItem ?? (() => {}); // al pulsar 1 o 2
+    this.touch = data.touchInput ?? { x: 0, y: 0, s: 0 }; // joystick y botones táctiles
     this.looks = new Map(data.players.map((p) => [p.id, p])); // nombre y color de cada jugador
   }
 
@@ -479,12 +480,15 @@ export class GameScene extends Phaser.Scene {
     for (const input of this.pending) applyInput(this.me, input, TICK_MS / 1000, this.map);
   }
 
+  /** Teclado y controles táctiles combinados (gana el que esté en uso). */
   readInput() {
     const k = this.keys;
+    const kx = (k.D.isDown || k.RIGHT.isDown ? 1 : 0) - (k.A.isDown || k.LEFT.isDown ? 1 : 0);
+    const ky = (k.S.isDown || k.DOWN.isDown ? 1 : 0) - (k.W.isDown || k.UP.isDown ? 1 : 0);
     return {
-      x: (k.D.isDown || k.RIGHT.isDown ? 1 : 0) - (k.A.isDown || k.LEFT.isDown ? 1 : 0),
-      y: (k.S.isDown || k.DOWN.isDown ? 1 : 0) - (k.W.isDown || k.UP.isDown ? 1 : 0),
-      s: k.SHIFT.isDown ? 1 : 0,
+      x: kx || this.touch.x,
+      y: ky || this.touch.y,
+      s: k.SHIFT.isDown || this.touch.s ? 1 : 0,
     };
   }
 

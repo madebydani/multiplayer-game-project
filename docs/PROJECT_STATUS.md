@@ -15,7 +15,7 @@
 - Pendiente de verificar: sonido en un ordenador real; latencia en un ordenador normal; dos ordenadores en LAN.
 
 ## Fase 7 — Mejoras (en curso)
-- 7a Sprint, 7b Habilidades y 7c Objetos: **completadas**. Móvil (táctil): pendiente (diseño aprobado en `docs/GAMEPLAY.md`).
+- 7a Sprint, 7b Habilidades, 7c Objetos y controles táctiles: **completados** (diseño en `docs/GAMEPLAY.md`). Los controles táctiles solo se han probado en emulación: **falta probarlos en móviles reales**.
 
 ## Siguiente
 - Fase 7 — Mejoras opcionales: power-ups, habilidades, inventario, versión móvil. Antes, definir la tabla de controles (D9) y cada habilidad (efecto, duración, recarga, cómo se muestra).

@@ -18,7 +18,9 @@ html, body {
   height: 100%;
   background: var(--bg);
   color: var(--text);
-  overflow: hidden;
+  /* Se permite desplazar los menús (en un móvil horizontal no caben);
+     la partida ocupa la pantalla fija y no se desplaza. */
+  overflow: auto;
   font-family: system-ui, sans-serif;
   font-size: 18px;
 }
@@ -29,7 +31,7 @@ html, body {
 
 .screen:not(#game-screen) {
   max-width: 420px;
-  margin: 8vh auto 0;
+  margin: 8vh auto 24px;
   padding: 24px;
   background: var(--panel);
   border: 1px solid var(--border);
@@ -143,9 +145,32 @@ button:focus-visible, input:focus-visible {
   clip: rect(0 0 0 0);
 }
 
-#game-screen, #game {
+#game-screen {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+#game {
   width: 100%;
   height: 100%;
+}
+
+/* En pantallas bajas (móvil en horizontal), menús más compactos. */
+@media (max-height: 500px) {
+  .screen:not(#game-screen) {
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  #logo {
+    max-height: 90px;
+    object-fit: contain;
+  }
 }
 
 #hud {
@@ -433,4 +458,130 @@ input[type='range'] {
 .effects {
   font-size: 0.8rem;
   color: #ffe082;
+}
+
+/* ---------- Móvil / tableta (body.touch lo pone client/js/touch.js) ---------- */
+#touch-controls,
+#rotate-hint {
+  display: none;
+}
+
+.touch #game-screen {
+  touch-action: none; /* el navegador no desplaza ni hace zoom al usar los controles */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.touch #touch-controls {
+  display: block;
+}
+
+#joystick {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: #ffffff22;
+  border: 3px solid #ffffff66;
+  touch-action: none;
+}
+
+#joystick-knob {
+  position: absolute;
+  left: 35px;
+  top: 35px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #ffffffaa;
+  pointer-events: none;
+}
+
+#touch-buttons {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 76px);
+  gap: 12px;
+}
+
+.touch-btn {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: bold;
+  background: #000000aa;
+  border: 3px solid #ffffff88;
+  touch-action: none;
+}
+
+.touch-btn.small-btn {
+  width: 56px;
+  height: 56px;
+  justify-self: center;
+  align-self: end;
+  font-size: 1.1rem;
+}
+
+.touch-btn.pressed {
+  background: #7cd99266;
+}
+
+/* En táctil: minimapa arriba a la derecha y barra de acciones entre los controles */
+.touch #minimap {
+  top: 12px;
+  bottom: auto;
+  width: 120px;
+  height: auto;
+}
+
+.touch #hud {
+  left: 12px;
+  top: 8px;
+  transform: none;
+  max-width: calc(100% - 150px);
+  font-size: 0.75rem;
+  gap: 6px;
+  padding: 4px 8px;
+}
+
+.touch .timer {
+  font-size: 1.05rem;
+}
+
+.touch #actionbar {
+  left: 50%;
+  right: auto;
+  bottom: 12px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 400px);
+  font-size: 0.8rem;
+  justify-content: center;
+}
+
+.touch #toast {
+  bottom: 110px;
+}
+
+/* El aviso está dentro de la pantalla de partida: solo se ve jugando. */
+@media (orientation: portrait) {
+  .touch #rotate-hint {
+    display: flex;
+  }
+}
+
+#rotate-hint {
+  position: fixed;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  background: #0d1410f2;
+  font-size: 1.3rem;
+  z-index: 10;
 }

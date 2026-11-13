@@ -152,3 +152,13 @@
 - Comprobado automáticamente: 71 pruebas (12 nuevas: aparición y máximo, recogida por bando y con hueco, motivos de error, energía, invisibilidad oculta al monstruo pero se puede capturar, caducidad, humo, radar sin los ocultos, furia ×1,2 y fin, pérdida de objetos al ser capturado, rastreo ignora a los ocultos; por red: el monstruo no recibe al invisible). Playwright (servidor en el mismo proceso para colocar objetos): recogida con aviso, nube visible para ambos, el monstruo no ve al superviviente en el humo, ranura vacía con motivo, furia y radar en el HUD; sin errores. Las otras 3 pruebas de navegador siguen pasando.
 - Pendiente: equilibrio (frecuencia de aparición, duraciones) con jugadores reales.
 - Evidencia: `docs/evidence/fase7c-*.png`.
+
+### 2026-11-13 — Fase 7: controles táctiles (móvil y tableta)
+- Objetivo: última parte aprobada de la fase 7.
+- Herramienta: Claude Code (sesión en la nube).
+- Creado: `client/js/touch.js`, `test/e2e/touch.mjs`. Modificado: `client/index.html` (joystick, botones, aviso de girar), `client/css/style.css` (diseño táctil, menús desplazables, menús compactos), `client/js/main.js`, `client/js/scenes/GameScene.js` (combina teclado y táctil).
+- Decisiones: D40, D41.
+- Incidencia importante: con el móvil emulado en horizontal, el menú no cabía y la página no dejaba desplazar, así que era imposible crear o unirse a una sala desde un móvil. Venía de la fase 2 (`overflow: hidden` global). Corregido.
+- Comprobado automáticamente (EMULACIÓN, no dispositivos reales): los controles aparecen solo en táctil; el joystick mueve al jugador (109–195 px en ~0,8 s) y vuelve a 0 al soltar; el botón de habilidad funciona (rastreo y señuelo); el aviso de girar aparece solo en vertical; menús alcanzables en iPhone 13 (horizontal y vertical), Galaxy S9+ e iPad Mini; sin errores. Las pruebas de escritorio y las 71 automáticas siguen pasando.
+- **Pendiente:** probar en móviles y tabletas reales (iOS y Android) antes de afirmar compatibilidad.
+- Evidencia: `docs/evidence/fase7-movil-*.png`.

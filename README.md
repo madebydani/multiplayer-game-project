@@ -32,6 +32,8 @@ Abrir `http://localhost:3000`, escribir un nombre y **Crear sala**. Los demás s
 | 1 / 2 | Usar el objeto de la ranura 1 / 2 (se recogen pasando por encima) |
 | M | Mostrar u ocultar el minimapa |
 
+En móvil o tableta (en horizontal) aparecen un joystick y botones táctiles. *Probado solo en emulación; pendiente de verificar en dispositivos reales.*
+
 En **Ajustes** se regula el volumen y se pueden reducir las animaciones (por defecto sigue la preferencia del sistema operativo).
 
 ## Pruebas
@@ -45,9 +47,12 @@ node test/e2e/two-browsers.cjs
 ```bash
 node test/e2e/ui.cjs
 ```
-Prueba de objetos (arranca su propio servidor):
+Pruebas de objetos y de controles táctiles en un móvil emulado (arrancan su propio servidor):
 ```bash
 node test/e2e/items.mjs
+```
+```bash
+node test/e2e/touch.mjs
 ```
 
 ## Jugar en red local (dos ordenadores)

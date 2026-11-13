@@ -14,7 +14,17 @@
 | 1 / 2 | Usar el objeto de la ranura 1 / 2 | 7c |
 | M | Mostrar u ocultar el minimapa | fase 6 |
 
-Ninguna tecla tiene dos acciones. Controles táctiles: al final de la fase 7.
+Ninguna tecla tiene dos acciones.
+
+### Controles táctiles (móvil / tableta, implementados al final de la fase 7)
+| Control | Equivale a |
+|---|---|
+| Joystick (abajo a la izquierda) | WASD, 8 direcciones (zona muerta del 30 %) |
+| Botón «Sprint» (mantener pulsado) | Shift |
+| Botón «Habilidad» | Espacio |
+| Botones «1» y «2» | Teclas 1 y 2 |
+
+Solo aparecen en pantallas táctiles. En vertical se pide girar el dispositivo. **Probado solo en móviles emulados en Chromium; pendiente de probar en dispositivos reales (iOS y Android).**
 
 ## 7a — Sprint (ambos bandos)
 

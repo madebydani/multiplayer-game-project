@@ -6,6 +6,7 @@ import { GameScene } from './scenes/GameScene.js';
 import { settings } from './settings.js';
 import { sfx, unlockAudio } from './sound.js';
 import { refreshManifest, hasAsset, UI_IMAGES } from './assets.js';
+import { setupTouchControls, resetTouchInput, touchInput } from './touch.js';
 
 const $ = (id) => document.getElementById(id);
 const screens = ['menu', 'settings', 'credits', 'lobby', 'game-screen', 'results'];
@@ -47,6 +48,9 @@ function roleIcon(role) {
   }
   return document.createTextNode(role === 'monster' ? '★ ' : '● ');
 }
+
+// Controles táctiles (solo aparecen en pantallas táctiles).
+setupTouchControls({ onAbility: () => useAbility(), onItem: (slot) => useItem(slot) });
 
 // Cualquier clic desbloquea el audio (los navegadores lo exigen).
 document.addEventListener('pointerdown', unlockAudio, { once: true });
@@ -196,6 +200,7 @@ socket.on(EV.GAME_STARTED, async (data) => {
     onLocal: updateEnergy,
     onAbility: useAbility,
     onUseItem: useItem,
+    touchInput,
   });
   window.__hunted = game; // acceso para pruebas automáticas
   updateHud({ timeLeftMs: data.durationMs, survivors: data.players.length - 1, events: [], players: data.players });
@@ -399,6 +404,7 @@ socket.on('disconnect', () => {
 });
 
 function stopGame() {
+  resetTouchInput();
   clearInterval(pingTimer);
   pingTimer = null;
   if (game) {

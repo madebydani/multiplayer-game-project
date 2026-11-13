@@ -174,5 +174,15 @@
 - Decisión: círculo azul (superviviente) o rombo rojo (monstruo) con la letra del objeto. Forma, color y letra: no depende solo del color.
 - Se podrán sustituir por iconos ilustrados más adelante (pendiente en `ASSET_LIST.md`).
 
+### D40 — Controles táctiles con eventos «pointer» en HTML (2026-11-13, fase 7)
+- Decisión: joystick y botones en HTML (no en Phaser) con eventos `pointer`, que funcionan igual con dedo, ratón o lápiz. El joystick produce la misma entrada que WASD, así que el servidor no cambia.
+- Detección: `(pointer: coarse)` o soporte de `ontouchstart`; en táctil se recolocan el minimapa, el HUD y la barra de acciones.
+- Verificación: solo en emulación (iPhone 13, Galaxy S9+ e iPad Mini en Playwright). Según la especificación, no se afirma compatibilidad con iOS ni Android hasta probarlo en dispositivos reales.
+
+### D41 — Desplazamiento en los menús (2026-11-13, fase 7)
+- Problema encontrado al emular un móvil en horizontal: la página tenía `overflow: hidden` en todas las pantallas y el menú no cabía en 390 px de alto. No se podía llegar a «Crear sala» ni a «Unirse».
+- Decisión: los menús se pueden desplazar; solo la partida es fija a pantalla completa. Además, menús compactos en pantallas bajas.
+- Comprobado: todos los botones del menú son alcanzables en 4 dispositivos emulados, sin desplazamiento horizontal.
+
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
 - `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.
