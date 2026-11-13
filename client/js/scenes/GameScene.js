@@ -1,4 +1,6 @@
-// Escena de juego — fase 3: varios jugadores sincronizados con el servidor.
+// Escena de juego — fase 4: jugadores sincronizados, roles e infección.
+// Roles distinguibles por FORMA además de color: superviviente = círculo,
+// monstruo = estrella roja. Un monstruo que aún no puede capturar se ve translúcido.
 // Todo el arte son PLACEHOLDERS geométricos (ver docs/ART_STYLE.md).
 //
 // Jugador local: PREDICCIÓN. Cada TICK_MS lee el teclado, se mueve al instante
@@ -19,19 +21,23 @@ const COLORS = {
   treeEdge: 0x2f5a35,
   rock: 0x6b6f73,
   cabin: 0x5a3b22,
+  monster: 0xe53935,
 };
+
+const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
 export class GameScene extends Phaser.Scene {
   constructor() {
     super('Game');
   }
 
-  /** data = { map, players, myId, socket } */
+  /** data = { map, players, myId, socket, onState } */
   init(data) {
     this.map = data.map;
     this.myId = data.myId;
     this.socket = data.socket;
     this.initialPlayers = data.players;
+    this.onStateCallback = data.onState ?? (() => {});
   }
 
   create() {
@@ -42,7 +48,8 @@ export class GameScene extends Phaser.Scene {
     for (const p of this.initialPlayers) this.addPlayerSprite(p);
 
     const me = this.initialPlayers.find((p) => p.id === this.myId);
-    this.me = { x: me.x, y: me.y, dx: 0, dy: 1, lastSeq: 0 };
+    // frozen empieza en true si soy el monstruo inicial (inmóvil 5 s).
+    this.me = { x: me.x, y: me.y, dx: 0, dy: 1, lastSeq: 0, role: me.role, frozen: me.role === 'monster' };
     this.prev = { x: me.x, y: me.y }; // posición en el tick anterior (suavizado)
     this.pending = []; // entradas enviadas y aún no confirmadas
     this.seq = 0;
@@ -62,18 +69,41 @@ export class GameScene extends Phaser.Scene {
   }
 
   addPlayerSprite(p) {
-    const body = this.add.circle(0, 0, PLAYER_RADIUS, p.color).setStrokeStyle(3, p.id === this.myId ? 0xffffff : 0x000000);
     const arrow = this.add.triangle(0, 0, 0, -6, 0, 6, 10, 0, 0xffffff);
     const label = this.add
-      .text(0, -PLAYER_RADIUS - 14, p.id === this.myId ? `${p.name} (tú)` : p.name, {
+      .text(0, -PLAYER_RADIUS - 16, '', {
         fontSize: '14px',
         color: '#ffffff',
         stroke: '#000000',
         strokeThickness: 4,
       })
       .setOrigin(0.5);
-    const container = this.add.container(p.x, p.y, [body, arrow, label]).setDepth(10);
-    this.sprites.set(p.id, { container, arrow });
+    const container = this.add.container(p.x, p.y, [arrow, label]).setDepth(10);
+    const sprite = { container, arrow, label, body: null, role: null, color: p.color, name: p.name, isMe: p.id === this.myId };
+    this.sprites.set(p.id, sprite);
+    this.setRole(sprite, p.role, false);
+  }
+
+  /** Dibuja el cuerpo según el rol: círculo (superviviente) o estrella (monstruo). */
+  setRole(sprite, role, animate = true) {
+    if (sprite.role === role) return;
+    sprite.role = role;
+    sprite.body?.destroy();
+    const outline = sprite.isMe ? 0xffffff : 0x000000;
+    sprite.body =
+      role === 'monster'
+        ? this.add.star(0, 0, 6, PLAYER_RADIUS * 0.6, PLAYER_RADIUS * 1.25, COLORS.monster).setStrokeStyle(3, sprite.color)
+        : this.add.circle(0, 0, PLAYER_RADIUS, sprite.color).setStrokeStyle(3, outline);
+    sprite.container.addAt(sprite.body, 0);
+    sprite.label.setText(`${role === 'monster' ? '★' : '●'} ${sprite.name}${sprite.isMe ? ' (tú)' : ''}`);
+
+    if (animate && !reduceMotion) {
+      // Efecto de transformación: destello y "rebote" de tamaño.
+      sprite.container.setScale(1.8);
+      this.tweens.add({ targets: sprite.container, scale: 1, duration: 400, ease: 'Back.Out' });
+      const flash = this.add.circle(sprite.container.x, sprite.container.y, PLAYER_RADIUS * 3, COLORS.monster, 0.5).setDepth(5);
+      this.tweens.add({ targets: flash, alpha: 0, scale: 2, duration: 500, onComplete: () => flash.destroy() });
+    }
   }
 
   drawMap() {
@@ -104,11 +134,23 @@ export class GameScene extends Phaser.Scene {
     this.snapshots.push(state);
     if (this.snapshots.length > 30) this.snapshots.shift();
 
+    // Roles y estado de captura de todos (incluido yo).
+    for (const p of state.players) {
+      const sprite = this.sprites.get(p.id);
+      if (!sprite) continue;
+      this.setRole(sprite, p.role);
+      // Monstruo que aún no puede capturar: translúcido.
+      sprite.body.setAlpha(p.role === 'monster' && p.cooldownMs > 0 ? 0.5 : 1);
+    }
+    this.onStateCallback(state);
+
     const mine = state.players.find((p) => p.id === this.myId);
     if (!mine) return;
     // Reconciliación: posición del servidor + entradas que aún no ha procesado.
     this.me.x = mine.x;
     this.me.y = mine.y;
+    this.me.role = mine.role;
+    this.me.frozen = mine.frozen;
     this.pending = this.pending.filter((i) => i.seq > mine.seq);
     for (const input of this.pending) applyInput(this.me, input, TICK_MS / 1000, this.map);
   }

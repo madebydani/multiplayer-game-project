@@ -51,24 +51,31 @@ test('dos clientes: sala, inicio, movimiento sincronizado y abandono', async () 
   assert.equal((await ask(a, EV.START_GAME)).ok, true);
   const start = await startedB;
   assert.equal(start.players.length, 2);
-  const a0 = start.players.find((p) => p.id === created.you);
+  // Se mueve el superviviente (el monstruo inicial está inmóvil 5 s).
+  const runner = start.players.find((p) => p.role === 'survivor');
+  const sock = runner.id === created.you ? a : b;
+  const watcher = sock === a ? b : a;
 
-  // A se mueve hacia arriba durante 10 ticks, al ritmo real del cliente (1 cada TICK_MS).
+  // 10 entradas hacia arriba, al ritmo real del cliente (1 cada TICK_MS).
   for (let s = 1; s <= 10; s++) {
-    a.emit(EV.INPUT, { seq: s, x: 0, y: -1 });
+    sock.emit(EV.INPUT, { seq: s, x: 0, y: -1 });
     await wait(TICK_MS);
   }
   await wait(300);
 
-  // B recibe el estado con A desplazado.
-  const state = await once(b, EV.STATE);
-  const aNow = state.players.find((p) => p.id === created.you);
-  assert.equal(aNow.seq, 10);
+  // El otro cliente recibe el estado con el superviviente desplazado.
+  const state = await once(watcher, EV.STATE);
+  const now = state.players.find((p) => p.id === runner.id);
+  assert.equal(now.seq, 10);
+  assert.equal(state.survivors, 1);
   // La predicción del cliente (misma función applyInput) coincide con el servidor.
-  const predicted = { x: a0.x, y: a0.y, dx: 0, dy: 1, lastSeq: 0 };
+  const predicted = { x: runner.x, y: runner.y, dx: 0, dy: 1, lastSeq: 0, role: 'survivor' };
   for (let s = 1; s <= 10; s++) applyInput(predicted, { seq: s, x: 0, y: -1 }, TICK_MS / 1000, start.map);
-  assert.ok(a0.y - aNow.y > 50, `A se movió ${a0.y - aNow.y}px`);
-  assert.ok(Math.abs(predicted.x - aNow.x) < 0.01 && Math.abs(predicted.y - aNow.y) < 0.01, `predicho ${predicted.x},${predicted.y} servidor ${aNow.x},${aNow.y}`);
+  assert.ok(runner.y - now.y > 50, `se movió ${runner.y - now.y}px`);
+  assert.ok(
+    Math.abs(predicted.x - now.x) < 0.01 && Math.abs(predicted.y - now.y) < 0.01,
+    `predicho ${predicted.x},${predicted.y} servidor ${now.x},${now.y}`,
+  );
 
   // Unirse a una partida en curso no está permitido.
   const c = client();
@@ -77,7 +84,10 @@ test('dos clientes: sala, inicio, movimiento sincronizado y abandono', async () 
   // Si B se desconecta, queda 1 jugador: fin por abandono y bucle detenido.
   const ended = once(a, EV.GAME_ENDED);
   b.disconnect();
-  assert.deepEqual(await ended, { reason: 'abandono' });
+  const result = await ended;
+  assert.equal(result.reason, 'abandon');
+  assert.equal(result.winner, null);
+  assert.equal(result.players.find((p) => p.name === 'Bea').status, 'disconnected');
   const serverRoom = server.rooms.rooms.get(created.code);
   assert.equal(serverRoom.state, 'lobby');
   assert.equal(serverRoom.match, null);
@@ -104,4 +114,29 @@ test('salas aisladas: una sala no recibe el estado de otra', async () => {
   await wait(300);
   assert.equal(leaked, false);
   assert.equal(server.rooms.rooms.get(r2.code).state, 'lobby');
+});
+
+test('duración elegida por el anfitrión y partida completa hasta victoria', async () => {
+  const a = client();
+  const b = client();
+  const r = await ask(a, EV.CREATE_ROOM, { name: 'Ana' });
+  await ask(b, EV.JOIN_ROOM, { code: r.code, name: 'Bea' });
+  assert.equal((await ask(b, EV.SET_DURATION, { minutes: 3 })).ok, false); // no es anfitrión
+  assert.equal((await ask(a, EV.SET_DURATION, { minutes: 4 })).ok, false); // no permitido
+  const upd = once(b, EV.ROOM_UPDATE);
+  assert.equal((await ask(a, EV.SET_DURATION, { minutes: 3 })).ok, true);
+  assert.equal((await upd).durationMin, 3);
+
+  const started = once(a, EV.GAME_STARTED);
+  await ask(a, EV.START_GAME);
+  assert.equal((await started).durationMs, 3 * 60000);
+
+  // Para no esperar 3 minutos, el test acorta la partida en el servidor.
+  const match = server.rooms.rooms.get(r.code).match;
+  match.durationMs = match.elapsedMs + 200;
+  const ended = await once(b, EV.GAME_ENDED);
+  assert.equal(ended.winner, 'survivors');
+  assert.equal(ended.reason, 'time');
+  assert.equal(match.running, false);
+  assert.equal(server.rooms.rooms.get(r.code).state, 'lobby');
 });

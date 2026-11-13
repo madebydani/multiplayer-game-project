@@ -3,15 +3,14 @@
 **Actualizado:** 2026-11-13
 
 ## Estado actual
-- Fase 1 (planificación): completada.
-- Fase 2 (prototipo local): completada.
-- Fase 3 (salas y red): **completada**. Menú, sala con código, anfitrión, 2–6 jugadores, movimiento autoritativo sincronizado, fin por abandono. 24 pruebas automáticas + prueba con dos navegadores independientes.
-- Pendiente de verificar por el equipo: prueba con **dos ordenadores** en la misma red (instrucciones en el README) y botón «Copiar código».
+- Fases 1–3: completadas (planificación, prototipo local, salas y red).
+- Fase 4 (núcleo de infección): **completada**. Partida completa: monstruo inicial al azar (inmóvil 5 s), captura a 40 px validada en servidor, transformación con bloqueo de 3 s, temporizador elegido por el anfitrión, victoria por captura o por tiempo, abandono, nuevo monstruo si se va el único, HUD y pantalla de resultados. 36 pruebas automáticas + prueba con dos navegadores.
+- Pendiente de verificar por el equipo: **dos ordenadores** en LAN, partida con 3 o más jugadores reales y si el equilibrio de velocidades (200/210 px/s) resulta divertido.
 
 ## Siguiente fase (pendiente de autorización)
-**Fase 4 — Núcleo de infección:** roles (monstruo inicial al azar), forma/icono distinto por rol, captura validada en servidor (40 px), transformación, bloqueo de 3 s tras transformarse, monstruo inicial inmóvil 5 s, temporizador elegido por el anfitrión (3/5/7/10 min), condiciones de victoria, evento `gameEnded`, pantalla de resultados (D7) y reglas de desconexión (D6).
+**Fase 5 — Mapa procedural:** el servidor genera un bosque distinto en cada partida (árboles, rocas, arbustos, caminos) a partir de una semilla, lo valida (sin solapamientos, todo el terreno libre conectado, puntos de aparición libres y separados) y lo envía a los clientes. Sustituye a `shared/testMap.js`.
 
-Criterio de cierre: partida completa con dos clientes que termine con victoria de cada bando; sin capturas duplicadas; sin temporizadores ni salas huérfanas.
+Criterio de cierre: cada partida tiene un mapa distinto y todos los clientes lo ven igual; una prueba automática con muchas semillas confirma conectividad y que nadie aparece atrapado.
 
 ## Notas para retomar en una sesión nueva
 - Especificación: `docs/HUNTED_SPEC.md`. Decisiones: `docs/DECISIONS.md`.

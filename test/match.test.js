@@ -20,7 +20,7 @@ test('puntos de aparición distintos y libres para 6 jugadores', () => {
 });
 
 test('una entrada mueve exactamente velocidad × tick', () => {
-  const m = new Match(createTestMap(), players);
+  const m = new Match(createTestMap(), players, { random: () => 0.99 }); // monstruo: b
   const a = m.players.get('a');
   a.x = 300; // zona despejada del camino
   a.y = 900;
@@ -43,8 +43,9 @@ test('rechaza entradas no válidas y repetidas', () => {
 });
 
 test('anti speed hack: enviar muchas entradas no da más velocidad', () => {
-  const m = new Match(createTestMap(), players);
+  const m = new Match(createTestMap(), players, { random: () => 0 }); // monstruo: a
   const b = m.players.get('b');
+  m.players.get('a').x = 2200; // monstruo lejos, para que no capture a "b"
   // Coloca a "b" en una zona despejada del camino y lejos de "a".
   b.x = 300;
   b.y = 900;
@@ -59,7 +60,7 @@ test('anti speed hack: enviar muchas entradas no da más velocidad', () => {
 });
 
 test('el servidor aplica colisiones (no atraviesa la cabaña)', () => {
-  const m = new Match(createTestMap(), players);
+  const m = new Match(createTestMap(), players, { random: () => 0.99 }); // monstruo: b
   const a = m.players.get('a');
   a.x = 1300;
   a.y = 1110;
@@ -80,5 +81,177 @@ test('stop() detiene el bucle', async () => {
   await new Promise((r) => setTimeout(r, TICK_MS * 3));
   assert.ok(after > 0);
   assert.equal(n, after);
+  assert.equal(m.running, false);
+});
+
+// ---------- Fase 4: infección ----------
+import { CAPTURE_RADIUS, CAPTURE_COOLDOWN_MS, MONSTER_START_FREEZE_MS } from '../shared/config.js';
+
+const three = [
+  { id: 'a', name: 'Ana' },
+  { id: 'b', name: 'Bea' },
+  { id: 'c', name: 'Cris' },
+];
+const ticksFor = (ms) => Math.ceil(ms / TICK_MS);
+const run = (m, ticks) => {
+  for (let i = 0; i < ticks; i++) m.step();
+};
+// random() = 0 → el primer jugador ("a") es el monstruo inicial.
+const newMatch = (list = three, opts = {}) => new Match(createTestMap(), list, { random: () => 0, ...opts });
+// Coloca jugadores en una zona despejada del camino.
+const place = (m, id, x, y = 900) => Object.assign(m.players.get(id), { x, y });
+
+test('al empezar hay exactamente un monstruo inicial', () => {
+  const m = new Match(createTestMap(), three);
+  const roles = [...m.players.values()].map((p) => p.role);
+  assert.equal(roles.filter((r) => r === 'monster').length, 1);
+  assert.equal(roles.filter((r) => r === 'survivor').length, 2);
+});
+
+test('el monstruo inicial no se mueve durante los primeros 5 s', () => {
+  const m = newMatch();
+  place(m, 'a', 300);
+  let seq = 0;
+  for (let i = 0; i < ticksFor(MONSTER_START_FREEZE_MS) - 1; i++) {
+    m.addInput('a', { seq: ++seq, x: 1, y: 0 });
+    m.step();
+  }
+  assert.equal(m.players.get('a').x, 300);
+  for (let i = 0; i < 5; i++) {
+    m.addInput('a', { seq: ++seq, x: 1, y: 0 });
+    m.step();
+  }
+  assert.ok(m.players.get('a').x > 300);
+});
+
+test('no captura durante la congelación inicial aunque esté pegado', () => {
+  const m = newMatch();
+  place(m, 'a', 300);
+  place(m, 'b', 310);
+  place(m, 'c', 900);
+  run(m, ticksFor(MONSTER_START_FREEZE_MS) - 1);
+  assert.equal(m.players.get('b').role, 'survivor');
+  m.step();
+  assert.equal(m.players.get('b').role, 'monster');
+});
+
+test('captura a distancia exacta del radio, no más allá', () => {
+  const m = newMatch();
+  run(m, ticksFor(MONSTER_START_FREEZE_MS));
+  place(m, 'a', 300);
+  place(m, 'b', 300 + CAPTURE_RADIUS + 0.5);
+  place(m, 'c', 900);
+  m.step();
+  assert.equal(m.players.get('b').role, 'survivor');
+  place(m, 'b', 300 + CAPTURE_RADIUS);
+  const snap = m.step();
+  const b = m.players.get('b');
+  assert.equal(b.role, 'monster');
+  assert.equal(b.capturedBy, 'Ana');
+  assert.deepEqual(snap.events, [{ type: 'capture', victim: 'b', by: 'a' }]);
+});
+
+test('el nuevo monstruo no puede capturar durante 3 s (sin capturas encadenadas)', () => {
+  const m = newMatch();
+  run(m, ticksFor(MONSTER_START_FREEZE_MS));
+  place(m, 'a', 300);
+  place(m, 'b', 320); // capturado por a
+  place(m, 'c', 900);
+  m.step();
+  assert.equal(m.players.get('b').role, 'monster');
+  // Alejamos al monstruo original; c se pega al nuevo monstruo b.
+  place(m, 'a', 1900, 300);
+  place(m, 'c', 330);
+  run(m, ticksFor(CAPTURE_COOLDOWN_MS) - 1);
+  assert.equal(m.players.get('c').role, 'survivor');
+  m.step();
+  assert.equal(m.players.get('c').role, 'monster');
+  assert.equal(m.players.get('c').capturedBy, 'Bea');
+});
+
+test('ganan los monstruos al capturar al último superviviente', () => {
+  const m = newMatch(players);
+  let result = null;
+  m.onEnd = (r) => (result = r);
+  run(m, ticksFor(MONSTER_START_FREEZE_MS));
+  place(m, 'a', 300);
+  place(m, 'b', 310);
+  m.step();
+  assert.equal(result.winner, 'monsters');
+  assert.equal(result.reason, 'allCaptured');
+  const byId = Object.fromEntries(result.players.map((p) => [p.id, p]));
+  assert.equal(byId.a.status, 'initialMonster');
+  assert.equal(byId.b.status, 'transformed');
+  assert.equal(byId.b.capturedBy, 'Ana');
+  assert.equal(byId.b.transformedAtMs, result.durationMs);
+  // Una vez terminada, no avanza ni acepta entradas.
+  const t = m.tick;
+  m.step();
+  assert.equal(m.tick, t);
+  assert.equal(m.addInput('b', { seq: 99, x: 1, y: 0 }), false);
+});
+
+test('ganan los supervivientes al acabar el tiempo', () => {
+  const m = newMatch(three, { durationMs: 2000 });
+  let result = null;
+  let calls = 0;
+  m.onEnd = (r) => {
+    result = r;
+    calls++;
+  };
+  run(m, ticksFor(2000) + 10);
+  assert.equal(calls, 1);
+  assert.equal(result.winner, 'survivors');
+  assert.equal(result.reason, 'time');
+  assert.equal(result.durationMs, 2000);
+  assert.deepEqual(
+    result.players.map((p) => p.status),
+    ['initialMonster', 'survived', 'survived'],
+  );
+});
+
+test('el estado incluye tiempo restante, supervivientes y bloqueo del monstruo', () => {
+  const m = newMatch(three, { durationMs: 60000 });
+  const s = m.step();
+  assert.equal(s.timeLeftMs, 60000 - TICK_MS);
+  assert.equal(s.survivors, 2);
+  const a = s.players.find((p) => p.id === 'a');
+  assert.equal(a.role, 'monster');
+  assert.equal(a.frozen, true);
+  assert.equal(a.cooldownMs, MONSTER_START_FREEZE_MS - TICK_MS);
+});
+
+test('desconexión: si se va el único monstruo, otro pasa a ser monstruo', () => {
+  const m = newMatch(three);
+  m.removePlayer('a');
+  assert.equal(m.result, null);
+  const monsters = [...m.players.values()].filter((p) => p.role === 'monster');
+  assert.equal(monsters.length, 1);
+  assert.equal(monsters[0].reassigned, true);
+  assert.equal(monsters[0].capturedBy, null);
+  const snap = m.step();
+  assert.equal(snap.events[0].type, 'newMonster');
+  assert.equal(snap.players.find((p) => p.id === monsters[0].id).cooldownMs, CAPTURE_COOLDOWN_MS - TICK_MS);
+});
+
+test('desconexión: se va el último superviviente → abandono, sin captura', () => {
+  const m = newMatch(three);
+  run(m, ticksFor(MONSTER_START_FREEZE_MS));
+  place(m, 'a', 300);
+  place(m, 'b', 310);
+  place(m, 'c', 900);
+  m.step(); // b capturado; quedan a (monstruo), b (monstruo), c (superviviente)
+  m.removePlayer('c');
+  assert.equal(m.result.winner, null);
+  assert.equal(m.result.reason, 'abandon');
+  const c = m.result.players.find((p) => p.id === 'c');
+  assert.equal(c.status, 'disconnected');
+  assert.equal(c.capturedBy, null);
+});
+
+test('desconexión: quedan menos de 2 jugadores → abandono', () => {
+  const m = newMatch(players);
+  m.removePlayer('b');
+  assert.equal(m.result.reason, 'abandon');
   assert.equal(m.running, false);
 });

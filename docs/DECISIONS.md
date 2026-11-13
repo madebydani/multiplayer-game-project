@@ -30,7 +30,7 @@
 - Alternativa: finalizar por abandono. Descartada por el usuario.
 - Resto de reglas de desconexión: según §4 de la especificación.
 
-### D7 — Presentación del resultado (2026-11-13)
+### D7 — Presentación del resultado (2026-11-13) — implementada en fase 4
 - Decisión (propuesta por defecto, sin objeción): bando ganador + lista por jugador: *Sobrevivió* / *Transformado a mm:ss (por X)* / *Monstruo inicial* / *Desconectado*; duración y motivo del final (tiempo, todos capturados, abandono).
 
 ### D8 — Duración de partida (2026-11-13)
@@ -70,6 +70,22 @@
 
 ### D17 — Códigos de sala de 4 caracteres sin caracteres ambiguos (2026-11-13, fase 3)
 - Alfabeto sin O/0, I/1 ni L; 31⁴ ≈ 923 000 combinaciones; se comprueba unicidad entre salas activas.
+
+### D18 — Tiempo de partida medido en ticks (2026-11-13, fase 4)
+- Decisión: el servidor cuenta el tiempo como `tick × 50 ms`, no con el reloj del sistema.
+- Motivo: partida determinista; las pruebas avanzan tick a tick sin esperar minutos reales.
+- Limitación: si el servidor se retrasa mucho, el reloj de partida también; aceptable para una partida de 2–6 jugadores.
+
+### D19 — Resultado por abandono sin bando ganador (2026-11-13, fase 4)
+- Decisión: si la partida termina por abandono (menos de 2 jugadores o se fue el último superviviente), `winner = null` y se muestra «Partida terminada».
+- Motivo: la especificación pide «finalizar por abandono» y no registrar una captura ficticia; otorgar la victoria a un bando sería ambiguo. Se puede cambiar si el equipo prefiere otra regla.
+
+### D20 — Revancha = volver a la misma sala (2026-11-13, fase 4)
+- Decisión: al terminar, la sala sigue existiendo; «Volver a la sala» deja al grupo listo para que el anfitrión empiece otra partida. «Menú principal» sale de la sala.
+- Alternativa: botón de revancha automática. Descartada por ahora: requiere confirmar que todos quieren seguir.
+
+### D21 — Una captura por contacto con varios supervivientes a la vez (2026-11-13, fase 4)
+- Decisión: si un monstruo toca a dos supervivientes en el mismo tick, captura a ambos. Lo que se evita es el encadenamiento: el recién transformado no captura durante 3 s.
 
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
 - `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

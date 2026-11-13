@@ -1,6 +1,13 @@
 // Gestión de salas SIN dependencia de Socket.IO (se puede probar aislada).
 // Una sala está en estado 'lobby' (esperando) o 'playing' (partida en curso).
-import { MAX_PLAYERS, MIN_PLAYERS, NAME_MAX_LENGTH, ROOM_CODE_LENGTH } from '../shared/config.js';
+import {
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+  NAME_MAX_LENGTH,
+  ROOM_CODE_LENGTH,
+  MATCH_DURATIONS_MIN,
+  DEFAULT_MATCH_DURATION_MIN,
+} from '../shared/config.js';
 
 // Sin letras/números confundibles (O/0, I/1, L).
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -38,7 +45,14 @@ export class RoomManager {
     const name = cleanName(rawName);
     this.ensureFree(playerId);
     const code = this.newCode();
-    const room = { code, hostId: playerId, state: 'lobby', players: new Map(), match: null };
+    const room = {
+      code,
+      hostId: playerId,
+      state: 'lobby',
+      players: new Map(),
+      match: null,
+      durationMin: DEFAULT_MATCH_DURATION_MIN,
+    };
     room.players.set(playerId, { id: playerId, name });
     this.rooms.set(code, room);
     this.playerRoom.set(playerId, code);
@@ -85,6 +99,17 @@ export class RoomManager {
     return room;
   }
 
+  /** El anfitrión elige la duración (solo valores permitidos). */
+  setDuration(playerId, minutes) {
+    const room = this.roomOf(playerId);
+    if (!room) throw new RoomError('No estás en ninguna sala.');
+    if (room.hostId !== playerId) throw new RoomError('Solo el anfitrión puede cambiar la duración.');
+    if (room.state !== 'lobby') throw new RoomError('La partida ya ha empezado.');
+    if (!MATCH_DURATIONS_MIN.includes(minutes)) throw new RoomError('Duración no válida.');
+    room.durationMin = minutes;
+    return room;
+  }
+
   roomOf(playerId) {
     const code = this.playerRoom.get(playerId);
     return code ? this.rooms.get(code) : null;
@@ -101,6 +126,7 @@ export class RoomManager {
       hostId: room.hostId,
       state: room.state,
       max: MAX_PLAYERS,
+      durationMin: room.durationMin,
       players: [...room.players.values()].map((p) => ({ id: p.id, name: p.name })),
     };
   }

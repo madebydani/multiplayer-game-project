@@ -35,6 +35,28 @@
     <h3>Jugadores <span id="lobby-count"></span></h3>
     <ul id="lobby-players"></ul>
 
+    <div class="duration-row">
+      <label for="duration">Duración de la partida</label>
+      <select id="duration">
+        <option value="3">3 min</option>
+        <option value="5">5 min</option>
+        <option value="7">7 min</option>
+        <option value="10">10 min</option>
+      </select>
+      <span id="duration-text"></span>
+    </div>
+
+    <details class="rules">
+      <summary>Cómo se juega</summary>
+      <ul>
+        <li>Un jugador al azar empieza como <strong>monstruo</strong> (estrella roja). Los demás son <strong>supervivientes</strong> (círculos).</li>
+        <li>El monstruo no puede moverse los primeros 5 segundos: ¡escóndete!</li>
+        <li>Si un monstruo te toca, te conviertes en monstruo. Durante 3 s no podrás capturar.</li>
+        <li>Supervivientes: ganáis si queda alguno cuando se acaba el tiempo.</li>
+        <li>Monstruos: ganáis si capturáis a todos antes.</li>
+      </ul>
+    </details>
+
     <button id="btn-start" class="primary">Empezar partida</button>
     <p id="lobby-hint" class="hint"></p>
     <button id="btn-leave">Salir de la sala</button>
@@ -45,10 +67,24 @@
   <div id="game-screen" class="screen" hidden>
     <div id="game"></div>
     <div id="hud">
-      <span id="hud-info"></span>
+      <span id="hud-role" class="role-tag"></span>
+      <span id="hud-status"></span>
+      <span id="hud-timer" class="timer" aria-label="Tiempo restante"></span>
+      <span id="hud-survivors"></span>
       <button id="btn-quit" class="small">Salir</button>
     </div>
+    <div id="toast" role="status" aria-live="polite"></div>
   </div>
+
+  <!-- Resultados -->
+  <main id="results" class="screen" hidden>
+    <h2 id="results-title"></h2>
+    <p id="results-reason" class="subtitle"></p>
+    <p id="results-duration" class="hint"></p>
+    <ul id="results-players"></ul>
+    <button id="btn-again" class="primary">Volver a la sala</button>
+    <button id="btn-menu">Menú principal</button>
+  </main>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/vendor/phaser/phaser.min.js"></script>

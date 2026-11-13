@@ -40,3 +40,18 @@
 - Pendiente de verificar: dos ordenadores reales en LAN; comportamiento con latencia real de red; botón «Copiar código» (el navegador de pruebas no tiene portapapeles).
 - Evidencia: `docs/evidence/fase3-*.png`.
 - Siguiente: fase 4, núcleo de infección.
+
+### 2026-11-13 — Fase 4: núcleo de infección
+- Objetivo: roles, captura validada en servidor, transformación, temporizador, victoria, resultados y desconexiones (prompt literal: «Si»).
+- Herramienta: Claude Code (sesión en la nube).
+- Modificado: `server/match.js` (roles, capturas, bloqueos, fin de partida, desconexiones), `server/rooms.js` (duración), `server/index.js` (resultado a toda la sala), `shared/movement.js` (velocidad por rol, congelación), `shared/events.js`, `client/index.html`, `client/css/style.css`, `client/js/main.js` (HUD, avisos, resultados), `client/js/scenes/GameScene.js` (formas por rol, efecto de transformación que respeta «reducir movimiento»), pruebas.
+- Decisiones: D18–D21 (tiempo en ticks, abandono sin ganador, revancha en la misma sala, captura múltiple sin encadenamiento).
+- Incidencias:
+  1. Revisando el código, la IA detectó que los avisos generados entre ticks (p. ej. «nuevo monstruo» al desconectarse) se borraban antes de enviarse. Corregido antes de probar.
+  2. Tres pruebas antiguas fallaban de forma intermitente: el monstruo se elige al azar y, si tocaba al jugador que se movía, estaba congelado. Se fijó el azar en esas pruebas (3 ejecuciones seguidas sin fallos).
+  3. La prueba de navegador antigua esperaba volver a la sala tras un abandono; ahora se muestran resultados. Reescrita para una partida completa.
+  4. El tiempo de transformación se redondeaba hacia arriba («0:06» en vez de «0:05»). Corregido: cuenta atrás hacia arriba, tiempo transcurrido hacia abajo.
+- Comprobado automáticamente: 36 pruebas `node:test` (11 nuevas de reglas: monstruo inicial único, congelación 5 s, radio exacto 40 px, bloqueo 3 s, victorias por captura y por tiempo, una sola llamada de fin, los 3 casos de desconexión; partida completa por red con duración elegida). Playwright con 2 navegadores: duración elegida por el anfitrión y vista por el invitado; el monstruo no se mueve congelado; persecución y captura reales; resultados correctos; revancha; abandono; sin errores de consola.
+- Pendiente de verificar: partida de 3+ jugadores en navegadores (cubierta solo por pruebas de servidor); victoria por tiempo en navegador (cubierta por prueba de red); equilibrio real de velocidades; dos ordenadores en LAN.
+- Evidencia: `docs/evidence/fase4-*.png`.
+- Siguiente: fase 5, mapa procedural.

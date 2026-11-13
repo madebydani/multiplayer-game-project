@@ -150,11 +150,121 @@ button:focus-visible, input:focus-visible {
 #hud {
   position: fixed;
   top: 12px;
-  right: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 24px);
+  flex-wrap: wrap;
+  justify-content: center;
   display: flex;
   gap: 10px;
   align-items: center;
   background: #000000aa;
   padding: 6px 10px;
   border-radius: 8px;
+}
+
+.duration-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+select {
+  font: inherit;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #0f1a12;
+  color: var(--text);
+}
+
+.rules {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.rules summary {
+  cursor: pointer;
+  color: var(--text);
+}
+
+.rules ul {
+  padding-left: 1.2em;
+}
+
+.timer {
+  font-family: ui-monospace, monospace;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.timer.urgent {
+  color: #ffcc80;
+}
+
+.role-tag {
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.role-tag.survivor {
+  background: #4fc3f7;
+  color: #0d1410;
+}
+
+.role-tag.monster {
+  background: #e53935;
+  color: #ffffff;
+}
+
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000000cc;
+  padding: 8px 16px;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#toast.visible {
+  opacity: 1;
+}
+
+#results-players {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#results-players li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.status {
+  color: var(--muted);
+  text-align: right;
+}
+
+.status.survived {
+  color: #81d4fa;
+}
+
+.status.monster {
+  color: #ef9a9a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #toast {
+    transition: none;
+  }
 }

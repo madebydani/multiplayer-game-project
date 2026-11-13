@@ -4,12 +4,13 @@ export const EV = {
   CREATE_ROOM: 'room:create', // { name } → ack { ok, code } | { ok: false, error }
   JOIN_ROOM: 'room:join', // { code, name } → ack
   LEAVE_ROOM: 'room:leave', // sin datos
+  SET_DURATION: 'room:duration', // { minutes } → ack (solo anfitrión)
   START_GAME: 'game:start', // sin datos → ack (solo anfitrión)
   INPUT: 'input', // { seq, x, y } con x, y ∈ {-1, 0, 1}
 
   // Servidor → cliente
-  ROOM_UPDATE: 'room:update', // { code, hostId, players: [{ id, name }], max, state }
-  GAME_STARTED: 'game:started', // { map, players: [{ id, name, x, y, color }] }
-  STATE: 'state', // { t, players: [{ id, x, y, dx, dy, seq }] }
-  GAME_ENDED: 'game:ended', // { reason }
+  ROOM_UPDATE: 'room:update', // { code, hostId, players: [{ id, name }], max, state, durationMin }
+  GAME_STARTED: 'game:started', // { map, durationMs, players: [{ id, name, x, y, color, role }] }
+  STATE: 'state', // { t, timeLeftMs, survivors, events, players: [{ id, x, y, dx, dy, seq, role, frozen, cooldownMs }] }
+  GAME_ENDED: 'game:ended', // resultado: { winner, reason, durationMs, players: [...] }
 };

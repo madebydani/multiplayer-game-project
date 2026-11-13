@@ -6,7 +6,6 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { Server } from 'socket.io';
 import { EV } from '../shared/events.js';
-import { MIN_PLAYERS } from '../shared/config.js';
 import { createTestMap } from '../shared/testMap.js';
 import { RoomManager, RoomError } from './rooms.js';
 import { Match } from './match.js';
@@ -25,12 +24,12 @@ export function createHuntedServer() {
 
   const sendRoom = (room) => io.to(room.code).emit(EV.ROOM_UPDATE, RoomManager.publicView(room));
 
-  /** Termina la partida de una sala y la devuelve al estado de espera. */
-  function endMatch(room, reason) {
+  /** La partida terminó: comunica el resultado a todos y vuelve la sala a espera. */
+  function endMatch(room, result) {
     room.match?.stop();
     room.match = null;
     room.state = 'lobby';
-    io.to(room.code).emit(EV.GAME_ENDED, { reason });
+    io.to(room.code).emit(EV.GAME_ENDED, result);
     sendRoom(room);
   }
 
@@ -41,13 +40,8 @@ export function createHuntedServer() {
     socket.leave(before.code);
     const room = rooms.leave(socket.id); // null si la sala quedó vacía (y se borró)
     if (!room) return;
-    if (room.match) {
-      room.match.removePlayer(socket.id);
-      if (room.match.players.size < MIN_PLAYERS) {
-        endMatch(room, 'abandono');
-        return;
-      }
-    }
+    // Si la partida termina por esta salida, endMatch ya avisa a la sala.
+    room.match?.removePlayer(socket.id);
     sendRoom(room);
   }
 
@@ -90,10 +84,25 @@ export function createHuntedServer() {
       handle(() => {
         const room = rooms.checkCanStart(socket.id);
         room.state = 'playing';
-        room.match = new Match(createTestMap(), [...room.players.values()]);
-        io.to(room.code).emit(EV.GAME_STARTED, room.match.initialView());
+        const match = new Match(createTestMap(), [...room.players.values()], {
+          durationMs: room.durationMin * 60000,
+        });
+        room.match = match;
+        io.to(room.code).emit(EV.GAME_STARTED, match.initialView());
         sendRoom(room);
-        room.match.start((snapshot) => io.to(room.code).emit(EV.STATE, snapshot));
+        match.start(
+          (snapshot) => io.to(room.code).emit(EV.STATE, snapshot),
+          (result) => {
+            if (room.match === match) endMatch(room, result);
+          },
+        );
+      }),
+    );
+
+    socket.on(
+      EV.SET_DURATION,
+      handle(({ minutes }) => {
+        sendRoom(rooms.setDuration(socket.id, minutes));
       }),
     );
 

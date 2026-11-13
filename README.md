@@ -4,7 +4,7 @@ Videojuego multijugador online en navegador, 2D top-down, de persecución e infe
 Un jugador empieza como monstruo; cada superviviente capturado se transforma en monstruo.
 Los supervivientes ganan si queda al menos uno cuando se acaba el tiempo.
 
-> **Estado:** fase 3 (salas y red). Varios jugadores se mueven sincronizados en una sala; aún no hay roles ni infección. Ver `docs/PROJECT_STATUS.md`.
+> **Estado:** fase 4 (núcleo de infección). Partida completa jugable: roles, capturas, transformación, temporizador y resultados. Mapa todavía fijo (fase 5). Ver `docs/PROJECT_STATUS.md`.
 
 ## Tecnologías
 - Cliente: HTML5, CSS3, JavaScript (ES modules), Phaser 3.
@@ -46,6 +46,9 @@ node test/e2e/two-browsers.cjs
 - Captura por proximidad (40 px) validada por el servidor; el capturado se transforma.
 - Un monstruo recién transformado no puede capturar durante 3 s.
 - Ganan los monstruos si no queda ningún superviviente; ganan los supervivientes si el tiempo llega a cero.
+- Superviviente = círculo de color; monstruo = estrella roja (translúcida mientras no puede capturar).
+- Desconexiones: si quedan menos de 2 jugadores o se va el último superviviente, la partida termina por abandono; si se va el único monstruo, un superviviente al azar pasa a ser monstruo.
+- Al terminar se muestra el bando ganador, el motivo, la duración y qué fue de cada jugador. «Volver a la sala» permite jugar otra partida con el mismo grupo.
 
 Detalle completo: `docs/HUNTED_SPEC.md` y `docs/DECISIONS.md`.
 
@@ -56,7 +59,7 @@ server/rooms.js    salas: códigos, unirse, anfitrión, salir (sin Socket.IO, te
 server/match.js    simulación autoritativa de la partida a 20 ticks/s
 shared/config.js   velocidades, radios, tiempos
 shared/collision.js, movement.js   movimiento y colisiones (cliente y servidor)
-shared/events.js   nombres de los eventos de red
+shared/events.js   nombres de los eventos de red (y qué datos lleva cada uno)
 shared/testMap.js  mapa fijo provisional (se sustituirá en la fase 5)
 client/index.html  menú y sala (HTML) + partida (Phaser)
 client/js/         main.js (pantallas), net.js (Socket.IO), scenes/GameScene.js

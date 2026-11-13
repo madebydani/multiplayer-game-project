@@ -40,3 +40,8 @@ Los prompts del usuario se citan literalmente cuando son visibles en la sesión.
 > Si
 
 **Respuesta (paráfrasis):** implementa salas y red con servidor autoritativo, predicción e interpolación; corrige una prueba mal escrita por la propia IA y ajusta otras dos tras analizar sus fallos; verifica con dos navegadores independientes.
+
+**Prompt 7 (literal), aprobando la fase 4:**
+> Si
+
+**Respuesta (paráfrasis):** implementa el núcleo de infección con reglas en el servidor, HUD y pantalla de resultados; añade 11 pruebas de reglas; corrige una pérdida de avisos, pruebas intermitentes por azar y un redondeo; verifica una partida completa con dos navegadores.
