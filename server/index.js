@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { Server } from 'socket.io';
 import { EV } from '../shared/events.js';
-import { createTestMap } from '../shared/testMap.js';
+import { randomInt } from 'node:crypto';
+import { generateMap } from './mapgen.js';
 import { RoomManager, RoomError } from './rooms.js';
 import { Match } from './match.js';
 
@@ -84,7 +85,9 @@ export function createHuntedServer() {
       handle(() => {
         const room = rooms.checkCanStart(socket.id);
         room.state = 'playing';
-        const match = new Match(createTestMap(), [...room.players.values()], {
+        // Mapa nuevo en cada partida, con semilla aleatoria (requisito académico 2).
+        const map = generateMap(randomInt(1, 2 ** 31 - 1));
+        const match = new Match(map, [...room.players.values()], {
           durationMs: room.durationMin * 60000,
         });
         room.match = match;

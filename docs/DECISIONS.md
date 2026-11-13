@@ -87,5 +87,19 @@
 ### D21 — Una captura por contacto con varios supervivientes a la vez (2026-11-13, fase 4)
 - Decisión: si un monstruo toca a dos supervivientes en el mismo tick, captura a ambos. Lo que se evita es el encadenamiento: el recién transformado no captura durante 3 s.
 
+### D22 — Hueco mínimo entre obstáculos de 52 px (2026-11-13, fase 5)
+- Primer intento: 36 px (jugador de 32 px + 4). Resultado medido: 185 de 200 mapas fallaban la validación con «zonas aisladas» de 1 a 9 celdas.
+- Causa: la rejilla de validación (16 px) no siempre tenía un punto dentro de pasillos tan estrechos; eran falsos aislamientos, no zonas cerradas reales.
+- Alternativas probadas: 48 px (196/200 válidos), 52 px (200/200), 56 px (200/200). Alternativa no probada: rejilla de 8 px (unas 4 veces más lenta).
+- Decisión: 52 px. Misma densidad de obstáculos (~124 de media), ~9 ms por mapa, y pasillos más cómodos para perseguir y huir.
+
+### D23 — Puntos de aparición: el más lejano a los ya elegidos (2026-11-13, fase 5)
+- Decisión: 400 candidatos libres (60 px alrededor sin obstáculos); se elige cada punto maximizando la distancia al más cercano ya elegido (mínimo 450 px). En la partida se reparten en orden aleatorio.
+- Efecto observado: los puntos tienden a quedar cerca de los bordes y esquinas del mapa. Aceptable (el monstruo está inmóvil 5 s); se puede revisar tras jugar.
+
+### D24 — Arbustos solo decorativos (2026-11-13, fase 5)
+- Decisión: los arbustos no tienen colisión y se dibujan debajo de los jugadores.
+- Motivo: ocultarse queda para el objeto «humo»/invisibilidad (fase 7); que un arbusto tape a un jugador ahora sería confuso.
+
 ### D13 — Versiones fijadas de dependencias (2026-11-13, fase 2)
 - `express@5.1.0`, `phaser@3.90.0` (última 3.x disponible en npm), `socket.io@4.8.1` y, solo para pruebas, `socket.io-client@4.8.1`. Phaser se sirve desde `node_modules` en `/vendor/phaser`, sin CDN ni bundler.

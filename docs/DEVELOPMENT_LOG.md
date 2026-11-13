@@ -55,3 +55,17 @@
 - Pendiente de verificar: partida de 3+ jugadores en navegadores (cubierta solo por pruebas de servidor); victoria por tiempo en navegador (cubierta por prueba de red); equilibrio real de velocidades; dos ordenadores en LAN.
 - Evidencia: `docs/evidence/fase4-*.png`.
 - Siguiente: fase 5, mapa procedural.
+
+### 2026-11-13 — Fase 5: mapa procedural
+- Objetivo: bosque aleatorio por partida, sincronizado, sin solapamientos y sin nadie atrapado (prompt literal: «Si»).
+- Herramienta: Claude Code (sesión en la nube).
+- Creado: `server/mapgen.js`, `test/mapgen.test.js`. Modificado: `server/index.js` (mapa nuevo por partida con `crypto.randomInt`), `server/match.js` (usa los puntos de aparición del mapa), `client/js/scenes/GameScene.js` (dibuja caminos, arbustos y cabañas), `test/network.test.js`, `test/e2e/two-browsers.cjs`.
+- Diseño: semilla → caminos → cabañas, rocas y árboles con hueco mínimo → 6 puntos de aparición → validación por BFS → reintento con la semilla siguiente si falla. Se envía la lista final de obstáculos (D3).
+- Incidencias:
+  1. Con hueco de 36 px, el 92 % de los mapas fallaba la validación (falsos aislamientos por la rejilla). Se midieron 48/52/56 px y se eligió 52 (D22).
+  2. Con el mapa nuevo, la prueba de navegador ya no podía capturar yendo en línea recta: se programó una persecución que esquiva obstáculos (captura en 4–10 s en las ejecuciones).
+  3. La comprobación «la revancha usa otro mapa» dio falso: la prueba leía el juego anterior, ya destruido. Corregida esperando a la escena nueva; después, un error de la IA en la condición de espera (acceso a `null`), también corregido.
+- Comprobado automáticamente: 42 pruebas `node:test`, entre ellas 200 semillas validadas con comprobaciones independientes (sin obstáculos demasiado juntos, spawns libres, todo el terreno alcanzable desde cada spawn, caminos despejados), reproducibilidad por semilla y detección de una zona encerrada artificial. Playwright: los dos navegadores reciben un mapa idéntico, la revancha genera otro distinto (también idéntico en ambos), persecución y captura reales, sin errores.
+- Pendiente de verificar: sensación de juego en el bosque (densidad, tamaño) con jugadores reales; dos ordenadores en LAN.
+- Evidencia: `docs/evidence/fase5-tres-mapas.png` (3 semillas), `docs/evidence/fase5-mapa-A.png`.
+- Siguiente: fase 6, arte e interfaz (requiere los assets de ChatGPT).

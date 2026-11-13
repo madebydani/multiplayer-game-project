@@ -20,7 +20,11 @@ const COLORS = {
   tree: 0x0f2414,
   treeEdge: 0x2f5a35,
   rock: 0x6b6f73,
-  cabin: 0x5a3b22,
+  cabin: 0x6d4428,
+  cabinDark: 0x4e2f1a,
+  rockLight: 0x8a8f94,
+  bush: 0x2e5e34,
+  bushLight: 0x3f7a45,
   monster: 0xe53935,
 };
 
@@ -107,24 +111,48 @@ export class GameScene extends Phaser.Scene {
   }
 
   drawMap() {
+    const { width, height } = this.map;
     const g = this.add.graphics();
-    g.fillStyle(COLORS.ground).fillRect(0, 0, this.map.width, this.map.height);
+    g.fillStyle(COLORS.ground).fillRect(0, 0, width, height);
     g.lineStyle(1, COLORS.grid);
-    for (let x = 0; x <= this.map.width; x += 100) g.lineBetween(x, 0, x, this.map.height);
-    for (let y = 0; y <= this.map.height; y += 100) g.lineBetween(0, y, this.map.width, y);
-    for (const p of this.map.paths) g.fillStyle(COLORS.path).fillRect(p.x, p.y, p.w, p.h);
+    for (let x = 0; x <= width; x += 100) g.lineBetween(x, 0, x, height);
+    for (let y = 0; y <= height; y += 100) g.lineBetween(0, y, width, y);
+
+    // Caminos: polilíneas gruesas con las uniones redondeadas.
+    for (const path of this.map.paths ?? []) {
+      g.lineStyle(path.width, COLORS.path);
+      g.fillStyle(COLORS.path);
+      for (let i = 0; i < path.points.length - 1; i++) {
+        const a = path.points[i];
+        const b = path.points[i + 1];
+        g.lineBetween(a.x, a.y, b.x, b.y);
+        g.fillCircle(b.x, b.y, path.width / 2);
+      }
+    }
+
+    // Arbustos (decoración, sin colisión): debajo de los jugadores.
+    for (const d of this.map.decor ?? []) {
+      g.fillStyle(COLORS.bush).fillCircle(d.x, d.y, d.r);
+      g.fillStyle(COLORS.bushLight).fillCircle(d.x - d.r * 0.3, d.y - d.r * 0.3, d.r * 0.5);
+    }
+
     for (const ob of this.map.obstacles) {
       if (ob.kind === 'tree') {
         g.fillStyle(COLORS.tree).fillCircle(ob.x, ob.y, ob.r);
         g.lineStyle(3, COLORS.treeEdge).strokeCircle(ob.x, ob.y, ob.r);
+        g.fillStyle(COLORS.treeEdge).fillCircle(ob.x - ob.r * 0.25, ob.y - ob.r * 0.25, ob.r * 0.35);
       } else if (ob.kind === 'rock') {
         g.fillStyle(COLORS.rock).fillCircle(ob.x, ob.y, ob.r);
+        g.fillStyle(COLORS.rockLight).fillCircle(ob.x - ob.r * 0.3, ob.y - ob.r * 0.3, ob.r * 0.4);
       } else if (ob.shape === 'rect') {
+        // Cabaña vista desde arriba: tejado a dos aguas.
         g.fillStyle(COLORS.cabin).fillRect(ob.x, ob.y, ob.w, ob.h);
+        g.fillStyle(COLORS.cabinDark).fillRect(ob.x, ob.y + ob.h / 2, ob.w, ob.h / 2);
         g.lineStyle(3, 0x000000).strokeRect(ob.x, ob.y, ob.w, ob.h);
+        g.lineBetween(ob.x, ob.y + ob.h / 2, ob.x + ob.w, ob.y + ob.h / 2);
       }
     }
-    g.lineStyle(6, 0x000000).strokeRect(0, 0, this.map.width, this.map.height);
+    g.lineStyle(6, 0x000000).strokeRect(0, 0, width, height);
   }
 
   // ---------- Red ----------

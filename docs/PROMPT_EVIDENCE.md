@@ -45,3 +45,8 @@ Los prompts del usuario se citan literalmente cuando son visibles en la sesión.
 > Si
 
 **Respuesta (paráfrasis):** implementa el núcleo de infección con reglas en el servidor, HUD y pantalla de resultados; añade 11 pruebas de reglas; corrige una pérdida de avisos, pruebas intermitentes por azar y un redondeo; verifica una partida completa con dos navegadores.
+
+**Prompt 8 (literal), aprobando la fase 5:**
+> Si
+
+**Respuesta (paráfrasis):** implementa el generador procedural en el servidor con validación por BFS; mide el porcentaje de mapas válidos con distintos huecos mínimos y elige 52 px; añade pruebas con 200 semillas; corrige dos errores en la prueba de navegador; genera una imagen con tres mapas como evidencia.

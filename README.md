@@ -4,7 +4,7 @@ Videojuego multijugador online en navegador, 2D top-down, de persecución e infe
 Un jugador empieza como monstruo; cada superviviente capturado se transforma en monstruo.
 Los supervivientes ganan si queda al menos uno cuando se acaba el tiempo.
 
-> **Estado:** fase 4 (núcleo de infección). Partida completa jugable: roles, capturas, transformación, temporizador y resultados. Mapa todavía fijo (fase 5). Ver `docs/PROJECT_STATUS.md`.
+> **Estado:** fase 5 (mapa procedural). Partida completa jugable con un bosque distinto en cada partida. Arte provisional (placeholders) hasta la fase 6. Ver `docs/PROJECT_STATUS.md`.
 
 ## Tecnologías
 - Cliente: HTML5, CSS3, JavaScript (ES modules), Phaser 3.
@@ -57,14 +57,22 @@ Detalle completo: `docs/HUNTED_SPEC.md` y `docs/DECISIONS.md`.
 server/index.js    Express + Socket.IO: conecta los eventos con salas y partidas
 server/rooms.js    salas: códigos, unirse, anfitrión, salir (sin Socket.IO, testeable)
 server/match.js    simulación autoritativa de la partida a 20 ticks/s
+server/mapgen.js   generación y validación del bosque procedural
 shared/config.js   velocidades, radios, tiempos
 shared/collision.js, movement.js   movimiento y colisiones (cliente y servidor)
 shared/events.js   nombres de los eventos de red (y qué datos lleva cada uno)
-shared/testMap.js  mapa fijo provisional (se sustituirá en la fase 5)
+shared/testMap.js  mapa fijo usado solo por las pruebas automáticas
 client/index.html  menú y sala (HTML) + partida (Phaser)
 client/js/         main.js (pantallas), net.js (Socket.IO), scenes/GameScene.js
 test/              node:test (unidad e integración) y e2e/ (Playwright)
 ```
+
+### Cómo se genera el mapa
+1. Al empezar cada partida, el servidor elige una **semilla** aleatoria; con la misma semilla siempre sale el mismo bosque.
+2. Traza dos caminos sinuosos y coloca cabañas, rocas y árboles al azar, descartando los que quedarían a menos de 52 px de otro obstáculo, del borde o encima de un camino. Como un jugador mide 32 px, siempre cabe por cualquier hueco.
+3. Elige 6 puntos de aparición libres y lo más separados posible.
+4. **Valida** el mapa con una búsqueda en anchura sobre una rejilla de 16 px: todo el terreno libre debe estar conectado. Si falla, prueba con la semilla siguiente.
+5. Envía a los clientes la **lista final** de obstáculos (no solo la semilla), así todos ven exactamente lo mismo.
 
 ### Cómo funciona el multijugador
 1. Cada cliente envía 20 veces por segundo solo **qué teclas pulsa** (`input`).

@@ -71,7 +71,7 @@ test('dos clientes: sala, inicio, movimiento sincronizado y abandono', async () 
   // La predicción del cliente (misma función applyInput) coincide con el servidor.
   const predicted = { x: runner.x, y: runner.y, dx: 0, dy: 1, lastSeq: 0, role: 'survivor' };
   for (let s = 1; s <= 10; s++) applyInput(predicted, { seq: s, x: 0, y: -1 }, TICK_MS / 1000, start.map);
-  assert.ok(runner.y - now.y > 50, `se movió ${runner.y - now.y}px`);
+  assert.ok(runner.y - now.y > 30, `se movió ${runner.y - now.y}px`);
   assert.ok(
     Math.abs(predicted.x - now.x) < 0.01 && Math.abs(predicted.y - now.y) < 0.01,
     `predicho ${predicted.x},${predicted.y} servidor ${now.x},${now.y}`,

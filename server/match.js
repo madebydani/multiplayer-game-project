@@ -38,7 +38,7 @@ export class Match {
 
     this.players = new Map(); // jugadores conectados que siguen en la simulación
     this.roster = new Map(); // TODOS los que empezaron (para el resultado final)
-    const spawns = spawnPoints(map, players.length);
+    const spawns = spawnPoints(map, players.length, random);
     const monsterIndex = Math.floor(random() * players.length);
 
     players.forEach((p, i) => {
@@ -246,8 +246,20 @@ export class Match {
   }
 }
 
-/** Puntos de aparición distintos y libres alrededor del spawn del mapa. */
-export function spawnPoints(map, count) {
+/**
+ * Puntos de aparición distintos y libres. Si el mapa trae `spawns` (mapa
+ * procedural, ya validados y separados), se reparten en orden aleatorio.
+ * Si no (mapa fijo de pruebas), se colocan en círculo alrededor de `spawn`.
+ */
+export function spawnPoints(map, count, random = Math.random) {
+  if (map.spawns?.length >= count) {
+    const shuffled = [...map.spawns];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.slice(0, count).map((p) => ({ ...p }));
+  }
   const points = [];
   const ringRadius = 90;
   for (let i = 0; i < count; i++) {
